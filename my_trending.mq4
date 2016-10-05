@@ -28,6 +28,7 @@ int OnInit()
    SetIndexLabel(0 ,"level");   
    
    _last_open_time=0;
+   limit = 0;
 //---
    return(INIT_SUCCEEDED);
   }
@@ -58,7 +59,9 @@ int OnCalculate(const int rates_total,
 //      Label1Buffer[i] = iRSI(NULL, 0, 14, PRICE_CLOSE,i  );
 
 //--- return value of prev_calculated for next call
-   return(rates_total);
+//   for(int i=1; i < limit-50; i++)
+//      Buffer[i] = 6;
+      return(rates_total);
 }
 
 void ima(const double &close[])
@@ -82,6 +85,7 @@ void ima(const double &close[])
       else
          ima_sum--;
       Buffer[i] = ima_sum * iMA_weight + (double)ima_sum/10+0.5;
+
    }
 }
 //+------------------------------------------------------------------+
