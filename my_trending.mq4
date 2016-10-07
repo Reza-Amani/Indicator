@@ -76,15 +76,15 @@ void ima(const double &close[])
          ima_sum++;
       else
          ima_sum--;
-      if(ima10>ima20)
-         ima_sum++;
-      else
-         ima_sum--;
+//      if(ima10>ima20)
+//         ima_sum++;
+//      else
+//         ima_sum--;
       if(close[i]>ima20)
          ima_sum++;
       else
          ima_sum--;
-      Buffer[i] = ima_sum * iMA_weight + (double)ima_sum/10+0.5;
+      Buffer[i] = ima_sum * iMA_weight;
 
    }
 }
