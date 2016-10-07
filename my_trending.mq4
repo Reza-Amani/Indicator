@@ -27,6 +27,7 @@ int OnInit()
    SetIndexBuffer(0,Buffer);
    SetIndexLabel(0 ,"level");   
    
+   //_last_calculated_output=0;
    _last_open_time=0;
    limit = 0;
 //---
@@ -48,8 +49,8 @@ int OnCalculate(const int rates_total,
   {
 //---
 
-   if( time[0]==_last_open_time)
-      return(0);  //Important: executes only on first tick of each bar.
+//   if( time[0]==_last_open_time)
+//      return(rates_total);  //Important: executes only on first tick of each bar.
    _last_open_time = time[0];
    limit = rates_total - prev_calculated;
    if(prev_calculated>0)
@@ -66,7 +67,7 @@ int OnCalculate(const int rates_total,
 
 void ima(const double &close[])
 {
-   for(int i=1; i < limit-50; i++)
+   for(int i=0; i < limit; i++)
    {
       double ima10 = iMA(Symbol(), Period(), 10, 0, MODE_SMA, PRICE_TYPICAL, i);
       double ima20 = iMA(Symbol(), Period(), 20, 0, MODE_SMA, PRICE_TYPICAL, i);
@@ -85,6 +86,7 @@ void ima(const double &close[])
       else
          ima_sum--;
       Buffer[i] = ima_sum * iMA_weight;
+//      _last_calculated_output = Buffer[i];
 
    }
 }
