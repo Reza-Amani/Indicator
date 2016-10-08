@@ -15,8 +15,10 @@ double         Buffer[];
 datetime    _last_open_time;
 int limit;
 //-----------------inputs
+input bool iMA_use = False;
 input int iMA_weight = 10;
-input bool iMA_use = True;
+input bool CMO_use = True;
+input int CMO_weight = 10;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -55,13 +57,36 @@ int OnCalculate(const int rates_total,
    if(prev_calculated>0)
       limit++;
    if(iMA_use)
-      ima(close);
+      use_ima(close);
+   if(CMO_use)
+      use_CMO();
 
 //--- return value of prev_calculated for next call
       return(rates_total);
 }
 
-void ima(const double &close[])
+void use_CMO()
+{
+   double cmo;
+   for(int i=0; i < limit; i++)
+   {
+      cmo = iCustom(NULL, 0, "downloaded/CMO_v1", 14, 0, 0, i);
+      int cmo_sum=0;
+      if(cmo>50)
+         cmo_sum=3;
+      else  
+      if(cmo>0)
+         cmo_sum=1;
+      else
+      if(cmo>-50)
+         cmo_sum=-1;
+      else
+         cmo_sum=-3;
+      Buffer[i] = cmo_sum * CMO_weight;
+   }
+}
+
+void use_ima(const double &close[])
 {
    for(int i=0; i < limit; i++)
    {
