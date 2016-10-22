@@ -56,6 +56,8 @@ int OnCalculate(const int rates_total,
    limit = rates_total - prev_calculated;
    if(prev_calculated>0)
       limit++;
+   for(int i=0; i < limit; i++)
+      Buffer[i]=0;
    if(iMA_use)
       use_ima(close);
    if(CMO_use)
@@ -67,8 +69,24 @@ int OnCalculate(const int rates_total,
 
 void use_CMO()
 {
-   double cmo;
+   double cmo0,cmo1,cmo2,cmo3;
    for(int i=0; i < limit; i++)
+   {
+      cmo0 = iCustom(NULL, 0, "downloaded/CMO_v1", 14, 0, 0, i);
+      cmo1 = iCustom(NULL, 0, "downloaded/CMO_v1", 14, 0, 0, i+1);
+      cmo2 = iCustom(NULL, 0, "downloaded/CMO_v1", 14, 0, 0, i+2);
+      cmo3 = iCustom(NULL, 0, "downloaded/CMO_v1", 14, 0, 0, i+3);
+      if(cmo0>=cmo1)
+         if(cmo1>=cmo2)
+//            if(cmo2>=cmo3)
+               Buffer[i] += 1 * CMO_weight;
+      if(cmo0<=cmo1)
+         if(cmo1<=cmo2)
+//            if(cmo2<=cmo3)
+               Buffer[i] -= 1 * CMO_weight;
+   }
+
+/*   for(int i=0; i < limit; i++)
    {
       cmo = iCustom(NULL, 0, "downloaded/CMO_v1", 14, 0, 0, i);
       int cmo_sum=0;
@@ -84,6 +102,7 @@ void use_CMO()
          cmo_sum=-3;
       Buffer[i] = cmo_sum * CMO_weight;
    }
+*/
 }
 
 void use_ima(const double &close[])
@@ -93,7 +112,7 @@ void use_ima(const double &close[])
       double ima10 = iMA(Symbol(), Period(), 10, 0, MODE_SMA, PRICE_TYPICAL, i);
       double ima20 = iMA(Symbol(), Period(), 20, 0, MODE_SMA, PRICE_TYPICAL, i);
       double ima50 = iMA(Symbol(), Period(), 50, 0, MODE_SMA, PRICE_TYPICAL, i);
-      int ima_sum=0;
+      double ima_sum=0;
       if(ima20>ima50)
          ima_sum++;
       else
@@ -110,7 +129,7 @@ void use_ima(const double &close[])
          ima_sum++;
       else
          ima_sum--;
-      Buffer[i] = ima_sum * iMA_weight;
+      Buffer[i] += ima_sum/4 * iMA_weight;
    }
 }
 //+------------------------------------------------------------------+
