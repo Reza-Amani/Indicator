@@ -27,6 +27,10 @@ double         Buffer_order[];
 double         Label2Buffer[];
 //--------macros
 #define _peaks_array_size 200
+#define _look_for_top_state 1
+#define _look_for_bottom_state 2
+#define _look_for_top_state_disapproved 3
+#define _look_for_bottom_state_disapproved 4
 //---globals
 int limit;
 double tops_price_array[_peaks_array_size]={1000};
@@ -34,6 +38,7 @@ int tops_bar_array[_peaks_array_size]={-1};
 double bottoms_price_array[_peaks_array_size]={0};
 int bottoms_bar_array[_peaks_array_size]={-1};
 int arrow_cnt=0;
+int peak_detector_state_machine = _look_for_top_state;
 
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
@@ -47,6 +52,13 @@ int OnInit()
 //---
    return(INIT_SUCCEEDED);
 }
+void OnDeinit(const int reason)
+{
+   for(int i=0; i<arrow_cnt;i++)
+      ObjectDelete(IntegerToString(i));   
+   arrow_cnt = 0;
+}
+
 //+------------------------------------------------------------------+
 //| Custom indicator iteration function                              |
 //+------------------------------------------------------------------+
@@ -77,28 +89,26 @@ int OnCalculate(const int rates_total,
       return(rates_total);
 }
 //+------------------------------------------------------------------+
-#define _look_for_top_state 1
-#define _look_for_bottom_state 2
-//====================================================================
 void consistency_of_peaks_order(int bar)
 {
-   if( (tops_price_array[0]>tops_price_array[1]) && (bottoms_price_array[0]>bottoms_price_array[1]) )
+   if( (tops_price_array[0]>tops_price_array[1]) && (bottoms_price_array[0]>bottoms_price_array[1]) && (peak_detector_state_machine!=_look_for_bottom_state_disapproved) )
    {
       Buffer_order[bar] = 1;  //up trend level 1, 2 peaks in a row
    }
    else
-   if( (tops_price_array[0]<tops_price_array[1]) && (bottoms_price_array[0]<bottoms_price_array[1]) )
+   if( (tops_price_array[0]<tops_price_array[1]) && (bottoms_price_array[0]<bottoms_price_array[1])&& (peak_detector_state_machine!=_look_for_top_state_disapproved))
    {
       Buffer_order[bar] = -1;  //down trend level 1, 2 peaks in a row
    }
-   
+   else
+      Buffer_order[bar] = 0;  //null trend
 }
 void peak_detector(int bar)
 {
-   static int peak_detector_state_machine = _look_for_top_state;
    switch(peak_detector_state_machine)
    {
       case _look_for_top_state:
+      case _look_for_top_state_disapproved:
          if(High[3 +bar] >= max(High[1 +bar],High[2 +bar],High[4 +bar],High[5 +bar]))
          {
             tops_arrays_append(High[3 +bar],3 +bar);
@@ -121,11 +131,12 @@ void peak_detector(int bar)
          {
             //TOCHECK: close potential buy, if it has not breached sl
             //NOTE: disapproved bottom is not going to be removed
-            peak_detector_state_machine = _look_for_bottom_state;
+            peak_detector_state_machine = _look_for_bottom_state_disapproved;
          }
          break;
          
       case _look_for_bottom_state:
+      case _look_for_bottom_state_disapproved:
          if(Low[3 +bar] <= min(Low[1 +bar],Low[2 +bar],Low[4 +bar],Low[5 +bar]))
          {
             bottoms_arrays_append(Low[3 +bar],3 +bar);
@@ -148,7 +159,7 @@ void peak_detector(int bar)
          {
             //TOCHECK: close potential sell, if it has not breached sl
             //NOTE: disapproved top is not going to be removed
-            peak_detector_state_machine = _look_for_top_state;
+            peak_detector_state_machine = _look_for_top_state_disapproved;
          }
          
          break;
