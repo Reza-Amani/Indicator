@@ -11,9 +11,9 @@
 #property indicator_buffers 2
 #property indicator_plots   2
 //--- plot Label1
-#property indicator_label1  "Label1"
+#property indicator_label1  "consistency of peaks order"
 #property indicator_type1   DRAW_LINE
-#property indicator_color1  clrRed
+#property indicator_color1  clrYellow
 #property indicator_style1  STYLE_SOLID
 #property indicator_width1  1
 //--- plot Label2
@@ -68,8 +68,10 @@ int OnCalculate(const int rates_total,
    else
       limit-=100;
    for(int i=limit-1; i >= 0; i--)
+   {
       peak_detector(i);
-   peak_detector(0);
+      consistency_of_peaks_order();
+   }
    
 //--- return value of prev_calculated for next call
       return(rates_total);
@@ -77,6 +79,10 @@ int OnCalculate(const int rates_total,
 //+------------------------------------------------------------------+
 #define _look_for_top_state 1
 #define _look_for_bottom_state 2
+//====================================================================
+void consistency_of_peaks_order()
+{
+}
 void peak_detector(int bar)
 {
    static int peak_detector_state_machine = _look_for_top_state;
