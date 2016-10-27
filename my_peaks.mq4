@@ -94,12 +94,60 @@ void consistency_of_peaks_order(int bar)
    if( (tops_price_array[0]>tops_price_array[1]) && (bottoms_price_array[0]>bottoms_price_array[1]) && (peak_detector_state_machine!=_look_for_bottom_state_disapproved) )
    {
       Buffer_order[bar] = 1;  //up trend level 1, 2 peaks in a row
+      if(tops_price_array[1]>tops_price_array[2])
+      {
+         Buffer_order[bar] += +1;  //down trend level 2, 3 peaks in a row
+         if(tops_price_array[2]>tops_price_array[3])
+         {
+            Buffer_order[bar] += +1;  //down trend level 3, 4 peaks in a row
+            if(tops_price_array[3]>tops_price_array[4])
+            {
+               Buffer_order[bar] += +1;  //down trend level 4, 5 peaks in a row
+            }
+         }
+      }
+      if(bottoms_price_array[1]>bottoms_price_array[2])
+      {
+         Buffer_order[bar] += +1;  //down trend level 2, 3 peaks in a row
+         if(bottoms_price_array[2]>bottoms_price_array[3])
+         {
+            Buffer_order[bar] += +1;  //down trend level 3, 4 peaks in a row
+            if(bottoms_price_array[3]>bottoms_price_array[4])
+            {
+               Buffer_order[bar] += +1;  //down trend level 4, 5 peaks in a row
+            }
+         }
+      }
    }
    else
    if( (tops_price_array[0]<tops_price_array[1]) && (bottoms_price_array[0]<bottoms_price_array[1])&& (peak_detector_state_machine!=_look_for_top_state_disapproved))
    {
       Buffer_order[bar] = -1;  //down trend level 1, 2 peaks in a row
-   }
+      if(tops_price_array[1]<tops_price_array[2])
+      {
+         Buffer_order[bar] += -1;  //down trend level 2, 3 peaks in a row
+         if(tops_price_array[2]<tops_price_array[3])
+         {
+            Buffer_order[bar] += -1;  //down trend level 3, 4 peaks in a row
+            if(tops_price_array[3]<tops_price_array[4])
+            {
+               Buffer_order[bar] += -1;  //down trend level 4, 5 peaks in a row
+            }
+         }
+      }
+      if(bottoms_price_array[1]<bottoms_price_array[2])
+      {
+         Buffer_order[bar] += -1;  //down trend level 2, 3 peaks in a row
+         if(bottoms_price_array[2]<bottoms_price_array[3])
+         {
+            Buffer_order[bar] += -1;  //down trend level 3, 4 peaks in a row
+            if(bottoms_price_array[3]<bottoms_price_array[4])
+            {
+               Buffer_order[bar] += -1;  //down trend level 4, 5 peaks in a row
+            }
+         }
+      }
+    }
    else
       Buffer_order[bar] = 0;  //null trend
 }
