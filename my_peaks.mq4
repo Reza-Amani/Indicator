@@ -23,7 +23,7 @@
 #property indicator_style2  STYLE_SOLID
 #property indicator_width2  1
 //--- indicator buffers
-double         Label1Buffer[];
+double         Buffer_order[];
 double         Label2Buffer[];
 //--------macros
 #define _peaks_array_size 200
@@ -41,7 +41,7 @@ int arrow_cnt=0;
 int OnInit()
 {
 //--- indicator buffers mapping
-   SetIndexBuffer(0,Label1Buffer);
+   SetIndexBuffer(0,Buffer_order);
    SetIndexBuffer(1,Label2Buffer);
    
 //---
@@ -70,7 +70,7 @@ int OnCalculate(const int rates_total,
    for(int i=limit-1; i >= 0; i--)
    {
       peak_detector(i);
-      consistency_of_peaks_order();
+      consistency_of_peaks_order(i);
    }
    
 //--- return value of prev_calculated for next call
@@ -80,8 +80,18 @@ int OnCalculate(const int rates_total,
 #define _look_for_top_state 1
 #define _look_for_bottom_state 2
 //====================================================================
-void consistency_of_peaks_order()
+void consistency_of_peaks_order(int bar)
 {
+   if( (tops_price_array[0]>tops_price_array[1]) && (bottoms_price_array[0]>bottoms_price_array[1]) )
+   {
+      Buffer_order[bar] = 1;  //up trend level 1, 2 peaks in a row
+   }
+   else
+   if( (tops_price_array[0]<tops_price_array[1]) && (bottoms_price_array[0]<bottoms_price_array[1]) )
+   {
+      Buffer_order[bar] = -1;  //down trend level 1, 2 peaks in a row
+   }
+   
 }
 void peak_detector(int bar)
 {
