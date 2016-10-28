@@ -17,20 +17,22 @@
 #property indicator_style1  STYLE_SOLID
 #property indicator_width1  1
 //--- plot Label2
-#property indicator_label2  "Label2"
+#property indicator_label2  "filtered quality of peaks order"
 #property indicator_type2   DRAW_LINE
-#property indicator_color2  clrLightSeaGreen
+#property indicator_color2  clrOrange
 #property indicator_style2  STYLE_SOLID
 #property indicator_width2  1
 //--- indicator buffers
 double         Buffer_order[];
-double         Label2Buffer[];
+double         rectified_Buffer_order[]={0};
+double         Buffer_filtered_quality[]={0};
 //--------macros
 #define _peaks_array_size 200
 #define _look_for_top_state 1
 #define _look_for_bottom_state 2
 #define _look_for_top_state_disapproved 3
 #define _look_for_bottom_state_disapproved 4
+#define _filter_order   50
 //---globals
 int limit;
 double tops_price_array[_peaks_array_size]={1000};
@@ -47,7 +49,7 @@ int OnInit()
 {
 //--- indicator buffers mapping
    SetIndexBuffer(0,Buffer_order);
-   SetIndexBuffer(1,Label2Buffer);
+   SetIndexBuffer(1,Buffer_filtered_quality);
    
 //---
    return(INIT_SUCCEEDED);
@@ -83,12 +85,18 @@ int OnCalculate(const int rates_total,
    {
       peak_detector(i);
       consistency_of_peaks_order(i);
+      filter_order_quality(i);
    }
    
 //--- return value of prev_calculated for next call
       return(rates_total);
 }
 //+------------------------------------------------------------------+
+void filter_order_quality(int bar)
+{
+   rectified_Buffer_order[bar] = max( rectified_Buffer_order[bar+1]-1, Buffer_order[bar], -Buffer_order[bar]);
+   Buffer_filtered_quality[bar] = ( Buffer_filtered_quality[bar+1]*(_filter_order-1) + rectified_Buffer_order[bar] ) / _filter_order;
+}
 void consistency_of_peaks_order(int bar)
 {
    if( (tops_price_array[0]>tops_price_array[1]) && (bottoms_price_array[0]>bottoms_price_array[1]) && (peak_detector_state_machine!=_look_for_bottom_state_disapproved) )
