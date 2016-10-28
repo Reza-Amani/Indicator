@@ -8,7 +8,7 @@
 #property version   "1.00"
 #property strict
 #property indicator_separate_window
-#property indicator_buffers 2
+#property indicator_buffers 3
 #property indicator_plots   2
 //--- plot Label1
 #property indicator_label1  "consistency of peaks order"
@@ -17,22 +17,28 @@
 #property indicator_style1  STYLE_SOLID
 #property indicator_width1  1
 //--- plot Label2
-#property indicator_label2  "filtered quality of peaks order"
+#property indicator_label2  "filte peaks order"
 #property indicator_type2   DRAW_LINE
 #property indicator_color2  clrOrange
 #property indicator_style2  STYLE_SOLID
 #property indicator_width2  1
+//--- plot Label2
+#property indicator_label3  "filtered quality of peaks order"
+#property indicator_type3   DRAW_LINE
+#property indicator_color3  clrOrange
+#property indicator_style3  STYLE_SOLID
+#property indicator_width3  1
 //--- indicator buffers
 double         Buffer_order[];
-double         rectified_Buffer_order[]={0};
-double         Buffer_filtered_quality[]={0};
+double         rectified_Buffer_order[];
+double         Buffer_filtered_quality[];
 //--------macros
 #define _peaks_array_size 200
 #define _look_for_top_state 1
 #define _look_for_bottom_state 2
 #define _look_for_top_state_disapproved 3
 #define _look_for_bottom_state_disapproved 4
-#define _filter_order   50
+#define _filter_order   150
 //---globals
 int limit;
 double tops_price_array[_peaks_array_size]={1000};
@@ -49,6 +55,7 @@ int OnInit()
 {
 //--- indicator buffers mapping
    SetIndexBuffer(0,Buffer_order);
+//   SetIndexBuffer(1,rectified_Buffer_order);
    SetIndexBuffer(1,Buffer_filtered_quality);
    
 //---
@@ -80,7 +87,11 @@ int OnCalculate(const int rates_total,
    if(prev_calculated>0)
       limit++;
    else
+   {
       limit-=100;
+      Buffer_filtered_quality[limit]=0;
+      rectified_Buffer_order[limit]=0;
+   }
    for(int i=limit-1; i >= 0; i--)
    {
       peak_detector(i);
