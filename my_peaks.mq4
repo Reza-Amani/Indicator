@@ -122,6 +122,10 @@ void consistency_of_peaks_order(int bar)
             if(tops_price_array[3]>tops_price_array[4])
             {
                Buffer_order[bar] += +1;  //down trend level 4, 5 peaks in a row
+               if(tops_price_array[4]>tops_price_array[5])
+               {
+                  Buffer_order[bar] += +1;  //down trend level 5, 6 peaks in a row
+               }
             }
          }
       }
@@ -134,6 +138,10 @@ void consistency_of_peaks_order(int bar)
             if(bottoms_price_array[3]>bottoms_price_array[4])
             {
                Buffer_order[bar] += +1;  //down trend level 4, 5 peaks in a row
+               if(bottoms_price_array[4]>bottoms_price_array[5])
+               {
+                  Buffer_order[bar] += +1;  //down trend level 5, 6 peaks in a row
+               }
             }
          }
       }
@@ -151,6 +159,10 @@ void consistency_of_peaks_order(int bar)
             if(tops_price_array[3]<tops_price_array[4])
             {
                Buffer_order[bar] += -1;  //down trend level 4, 5 peaks in a row
+               if(tops_price_array[4]<tops_price_array[4])
+               {
+                  Buffer_order[bar] += -1;  //down trend level 5, 6 peaks in a row
+               }
             }
          }
       }
@@ -163,6 +175,10 @@ void consistency_of_peaks_order(int bar)
             if(bottoms_price_array[3]<bottoms_price_array[4])
             {
                Buffer_order[bar] += -1;  //down trend level 4, 5 peaks in a row
+               if(bottoms_price_array[4]<bottoms_price_array[5])
+               {
+                  Buffer_order[bar] += -1;  //down trend level 5, 6 peaks in a row
+               }
             }
          }
       }
