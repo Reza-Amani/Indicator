@@ -8,30 +8,37 @@
 #property version   "1.00"
 #property strict
 #property indicator_separate_window
-#property indicator_buffers 3
-#property indicator_plots   2
-//--- plot Label1
+#property indicator_buffers 4
+#property indicator_plots   4
+
 #property indicator_label1  "consistency of peaks order"
 #property indicator_type1   DRAW_LINE
 #property indicator_color1  clrGray
 #property indicator_style1  STYLE_SOLID
 #property indicator_width1  1
-//--- plot Label2
+
 #property indicator_label2  "rectified peaks order"
 #property indicator_type2   DRAW_LINE
 #property indicator_color2  clrGray
 #property indicator_style2  STYLE_SOLID
 #property indicator_width2  1
-//--- plot Label2
+
 #property indicator_label3  "filtered quality of peaks order"
 #property indicator_type3   DRAW_LINE
 #property indicator_color3  clrYellow
 #property indicator_style3  STYLE_SOLID
 #property indicator_width3  1
+
+#property indicator_label4  "peaks"
+#property indicator_type4   DRAW_HISTOGRAM
+#property indicator_color4  clrRosyBrown
+#property indicator_style4  STYLE_SOLID
+#property indicator_width4  1
 //--- indicator buffers
 double         Buffer_order[];
 double         rectified_Buffer_order[];
 double         Buffer_filtered_quality[];
+double         Buffer_peaks[];
 //--------macros
 #define _peaks_array_size 200
 #define _look_for_top_state 1
@@ -57,6 +64,7 @@ int OnInit()
    SetIndexBuffer(0,Buffer_order);
    SetIndexBuffer(1,rectified_Buffer_order);
    SetIndexBuffer(2,Buffer_filtered_quality);
+   SetIndexBuffer(3,Buffer_peaks);
    
 //---
    return(INIT_SUCCEEDED);
@@ -197,6 +205,7 @@ void peak_detector(int bar)
             tops_arrays_append(High[3 +bar],3 +bar);
             arrow_cnt++;
             ObjectCreate(IntegerToString(arrow_cnt),OBJ_ARROW_DOWN,0,Time[3 +bar], High[3 +bar]);   
+            Buffer_peaks[3 +bar]=1;
             peak_detector_state_machine = _look_for_bottom_state;
          }
          else
@@ -207,6 +216,7 @@ void peak_detector(int bar)
                   tops_arrays_append(High[2 +bar],2 +bar);
                   arrow_cnt++;
                   ObjectCreate(IntegerToString(arrow_cnt),OBJ_ARROW_DOWN,0,Time[2 +bar], High[2 +bar]);   
+                  Buffer_peaks[2 +bar]=1;
                   peak_detector_state_machine = _look_for_bottom_state;
                }
          else
@@ -225,6 +235,7 @@ void peak_detector(int bar)
             bottoms_arrays_append(Low[3 +bar],3 +bar);
             arrow_cnt++;
             ObjectCreate(IntegerToString(arrow_cnt),OBJ_ARROW_UP,0,Time[3 +bar], Low[3 +bar]);   
+            Buffer_peaks[3 +bar]=-1;
             peak_detector_state_machine = _look_for_top_state;
          }
          else
@@ -235,6 +246,7 @@ void peak_detector(int bar)
                   bottoms_arrays_append(Low[2 +bar],2 +bar);
                   arrow_cnt++;
                   ObjectCreate(IntegerToString(arrow_cnt),OBJ_ARROW_UP,0,Time[2 +bar], Low[2 +bar]);   
+                 Buffer_peaks[2 +bar]=-1;
                   peak_detector_state_machine = _look_for_top_state;
                }
          else
