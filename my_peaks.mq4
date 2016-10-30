@@ -102,6 +102,7 @@ int OnCalculate(const int rates_total,
    }
    for(int i=limit-1; i >= 0; i--)
    {
+      Buffer_peaks[i]=0;
       peak_detector(i);
       consistency_of_peaks_order(i);
       filter_order_quality(i);
