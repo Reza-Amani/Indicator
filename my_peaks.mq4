@@ -13,7 +13,7 @@
 
 #property indicator_label1  "consistency of peaks order"
 #property indicator_type1   DRAW_LINE
-#property indicator_color1  clrGray
+#property indicator_color1  clrWhiteSmoke
 #property indicator_style1  STYLE_SOLID
 #property indicator_width1  1
 
@@ -45,7 +45,7 @@ double         Buffer_peaks[];
 #define _look_for_bottom_state 2
 #define _look_for_top_state_disapproved 3
 #define _look_for_bottom_state_disapproved 4
-#define _filter_order   150
+#define _filter_order   60
 //---globals
 int limit;
 double tops_price_array[_peaks_array_size]={1000};
@@ -114,7 +114,7 @@ int OnCalculate(const int rates_total,
 //+------------------------------------------------------------------+
 void filter_order_quality(int bar)
 {
-   rectified_Buffer_order[bar] = max( rectified_Buffer_order[bar+1]-1, Buffer_order[bar], -Buffer_order[bar]);
+   rectified_Buffer_order[bar] = max( rectified_Buffer_order[bar+1]-0.5, Buffer_order[bar], -Buffer_order[bar]);
    Buffer_filtered_quality[bar] = ( Buffer_filtered_quality[bar+1]*(_filter_order-1) + rectified_Buffer_order[bar] ) / _filter_order;
 }
 void consistency_of_peaks_order(int bar)
