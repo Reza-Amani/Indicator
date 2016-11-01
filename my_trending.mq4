@@ -51,9 +51,6 @@ int OnCalculate(const int rates_total,
                 const int &spread[])
   {
 //---
-
-//   if( time[0]==_last_open_time)
-//      return(rates_total);  //Important: executes only on first tick of each bar.
    _last_open_time = time[0];
    limit = rates_total - prev_calculated;
    if(prev_calculated>0)
