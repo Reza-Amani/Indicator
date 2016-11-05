@@ -8,8 +8,10 @@
 #property version   "1.00"
 #property strict
 #property indicator_separate_window
-#property indicator_buffers 4
-#property indicator_plots   4
+#property indicator_maximum 6.1
+#property indicator_minimum -0.5
+#property indicator_buffers 6
+#property indicator_plots   6
 
 #property indicator_label1  "consistency of peaks order"
 #property indicator_type1   DRAW_LINE
@@ -30,15 +32,29 @@
 #property indicator_width3  1
 
 #property indicator_label4  "peaks"
-#property indicator_type4   DRAW_HISTOGRAM
-#property indicator_color4  clrRosyBrown
-#property indicator_style4  STYLE_SOLID
+#property indicator_type4   DRAW_LINE
+#property indicator_color4  clrDarkCyan
+#property indicator_style4  STYLE_DOT
 #property indicator_width4  1
+
+#property indicator_label5  "peaks clearance"
+#property indicator_type5   DRAW_LINE
+#property indicator_color5  clrDarkGray
+#property indicator_style5  STYLE_DOT
+#property indicator_width5  1
+
+#property indicator_label6  "filtered clearance"
+#property indicator_type6   DRAW_LINE
+#property indicator_color6  clrDarkRed
+#property indicator_style6  STYLE_DOT
+#property indicator_width6  2
 //--- indicator buffers
 double         Buffer_order[];
 double         rectified_Buffer_order[];
 double         Buffer_filtered_quality[];
 double         Buffer_peaks[];
+double         Buffer_clearance[];
+double         Buffer_filtered_clearance[];
 //--------macros
 #define _peaks_array_size 200
 #define _look_for_top_state 1
@@ -46,6 +62,7 @@ double         Buffer_peaks[];
 #define _look_for_top_state_disapproved 3
 #define _look_for_bottom_state_disapproved 4
 #define _filter_order   60
+#define _filter_clearance_order 60
 //---globals
 int limit;
 double tops_price_array[_peaks_array_size]={1000};
@@ -65,6 +82,8 @@ int OnInit()
    SetIndexBuffer(1,rectified_Buffer_order);
    SetIndexBuffer(2,Buffer_filtered_quality);
    SetIndexBuffer(3,Buffer_peaks);
+   SetIndexBuffer(4,Buffer_clearance);
+   SetIndexBuffer(5,Buffer_filtered_clearance);
    
 //---
    return(INIT_SUCCEEDED);
@@ -96,9 +115,11 @@ int OnCalculate(const int rates_total,
       limit++;
    else
    {
-      limit-=100;
+      limit-=10;
       Buffer_filtered_quality[limit]=0;
       rectified_Buffer_order[limit]=0;
+      Buffer_clearance[limit+1]=0;
+      Buffer_filtered_clearance[limit]=0;
    }
    for(int i=limit-1; i >= 0; i--)
    {
@@ -106,12 +127,27 @@ int OnCalculate(const int rates_total,
       peak_detector(i);
       consistency_of_peaks_order(i);
       filter_order_quality(i);
+      peaks_clearance_measure(i);
+      filter_clearance(i);
    }
    
 //--- return value of prev_calculated for next call
       return(rates_total);
 }
 //+------------------------------------------------------------------+
+void filter_clearance(int bar)
+{
+   Buffer_filtered_clearance[bar] = ( Buffer_filtered_clearance[bar+1]*(_filter_clearance_order-1) + Buffer_clearance[bar] ) / _filter_clearance_order;
+}
+void peaks_clearance_measure(int bar)
+{
+   if(Buffer_peaks[ 3+bar]==0)   //no peak there
+      Buffer_clearance[ bar]=Buffer_clearance[ 1+bar]+1;
+   else
+      Buffer_clearance[ bar]=0;  //reset it if there is a peak
+   if(Buffer_clearance[ bar]>6)
+      Buffer_clearance[ bar]=6;  //cut it  to 6 max
+}
 void filter_order_quality(int bar)
 {
    rectified_Buffer_order[bar] = max( rectified_Buffer_order[bar+1]-0.5, Buffer_order[bar], -Buffer_order[bar]);
