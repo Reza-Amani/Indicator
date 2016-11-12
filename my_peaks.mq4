@@ -61,7 +61,7 @@ double         Buffer_filtered_clearance[];
 #define _look_for_bottom_state 2
 #define _look_for_top_state_disapproved 3
 #define _look_for_bottom_state_disapproved 4
-#define _filter_order   60
+#define _filter_order   80
 #define _filter_clearance_order 60
 //---globals
 int limit;
@@ -145,8 +145,8 @@ void peaks_clearance_measure(int bar)
       Buffer_clearance[ bar]=Buffer_clearance[ 1+bar]+1;
    else
       Buffer_clearance[ bar]=0;  //reset it if there is a peak
-   if(Buffer_clearance[ bar]>6)
-      Buffer_clearance[ bar]=6;  //cut it  to 6 max
+   if(Buffer_clearance[ bar]>9)
+      Buffer_clearance[ bar]=9;  //cut it  to 9 max
 }
 void filter_order_quality(int bar)
 {
@@ -160,32 +160,32 @@ void consistency_of_peaks_order(int bar)
       Buffer_order[bar] = 1;  //up trend level 1, 2 peaks in a row
       if(tops_price_array[1]>tops_price_array[2])
       {
-         Buffer_order[bar] += +1;  //down trend level 2, 3 peaks in a row
+         Buffer_order[bar] += +1;  //up trend level 2, 3 peaks in a row
          if(tops_price_array[2]>tops_price_array[3])
          {
-            Buffer_order[bar] += +1;  //down trend level 3, 4 peaks in a row
+            Buffer_order[bar] += +1;  //up trend level 3, 4 peaks in a row
             if(tops_price_array[3]>tops_price_array[4])
             {
-               Buffer_order[bar] += +1;  //down trend level 4, 5 peaks in a row
+               Buffer_order[bar] += +1;  //up trend level 4, 5 peaks in a row
                if(tops_price_array[4]>tops_price_array[5])
                {
-                  Buffer_order[bar] += +1;  //down trend level 5, 6 peaks in a row
+                  Buffer_order[bar] += +1;  //up trend level 5, 6 peaks in a row
                }
             }
          }
       }
       if(bottoms_price_array[1]>bottoms_price_array[2])
       {
-         Buffer_order[bar] += +1;  //down trend level 2, 3 peaks in a row
+         Buffer_order[bar] += +1;  //up trend level 2, 3 peaks in a row
          if(bottoms_price_array[2]>bottoms_price_array[3])
          {
-            Buffer_order[bar] += +1;  //down trend level 3, 4 peaks in a row
+            Buffer_order[bar] += +1;  //up trend level 3, 4 peaks in a row
             if(bottoms_price_array[3]>bottoms_price_array[4])
             {
-               Buffer_order[bar] += +1;  //down trend level 4, 5 peaks in a row
+               Buffer_order[bar] += +1;  //up trend level 4, 5 peaks in a row
                if(bottoms_price_array[4]>bottoms_price_array[5])
                {
-                  Buffer_order[bar] += +1;  //down trend level 5, 6 peaks in a row
+                  Buffer_order[bar] += +1;  //up trend level 5, 6 peaks in a row
                }
             }
          }
@@ -204,7 +204,7 @@ void consistency_of_peaks_order(int bar)
             if(tops_price_array[3]<tops_price_array[4])
             {
                Buffer_order[bar] += -1;  //down trend level 4, 5 peaks in a row
-               if(tops_price_array[4]<tops_price_array[4])
+               if(tops_price_array[4]<tops_price_array[5])
                {
                   Buffer_order[bar] += -1;  //down trend level 5, 6 peaks in a row
                }
