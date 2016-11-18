@@ -3,33 +3,29 @@
 //|                                                             Reza |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
-/*#property copyright "Reza"
-#property link      ""
-#property version   "1.00"
+#property copyright "Reza"
 #property strict
 #property indicator_separate_window
-#property indicator_buffers 1
-#property indicator_plots   1
+#property indicator_buffers 2
+#property indicator_plots   2
 //--- indicator buffers
-double         Buffer[];
+double         Buf_raw[];
+double Buf_accomulated[];
 datetime    _last_open_time;
 int limit;
 //-----------------inputs
-input bool iMA_use = False;
-input int iMA_weight = 10;
-input int ima_base = 10;
-input bool CMO_use = True;
-input int CMO_weight = 10;
-input int CMO_len = 14;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
 int OnInit()
   {
 //--- indicator buffers mapping
-   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrBlueViolet);
-   SetIndexBuffer(0,Buffer);
-   SetIndexLabel(0 ,"level");   
+   SetIndexStyle(0, DRAW_HISTOGRAM, STYLE_SOLID, 1, clrBrown);
+   SetIndexBuffer(0,Buf_raw);
+   SetIndexLabel(0 ,"value");   
+   SetIndexStyle(1, DRAW_LINE, STYLE_SOLID, 1, clrRed);
+   SetIndexBuffer(1,Buf_accomulated);
+   SetIndexLabel(1 ,"filtered");   
    
    _last_open_time=0;
    limit = 0;
@@ -55,69 +51,26 @@ int OnCalculate(const int rates_total,
    limit = rates_total - prev_calculated;
    if(prev_calculated>0)
       limit++;
-   for(int i=0; i < limit; i++)
-      Buffer[i]=0;
-   if(iMA_use)
-      use_ima(close);
-   if(CMO_use)
-      use_CMO();
+   else
+   {
+      limit-=20;
+      Buf_accomulated[limit]=0;
 
+   }
+   for(int i=limit-1; i >= 0; i--)
+   {
+      Buf_raw[i]=ind_value_in_bar(i);
+      //Buf_accomulated[i]=//;iMAOnArray(Buf_raw, 0,10,0,MODE_SMA,0);
+      Buf_accomulated[i]=Buf_accomulated[i+1]+Buf_raw[i];
+   }
 //--- return value of prev_calculated for next call
       return(rates_total);
 }
 
-void use_CMO()
+double ind_value_in_bar(int bar)
 {
-   double cmo0,cmo1,cmo2,cmo3;
-   for(int i=0; i < limit; i++)
-   {
-      double cmo_sum=0;
-      cmo0 = iCustom(NULL, 0, "downloaded/CMO_v1", CMO_len, 0, 0, i);
-      cmo1 = iCustom(NULL, 0, "downloaded/CMO_v1", CMO_len, 0, 0, i+1);
-      cmo2 = iCustom(NULL, 0, "downloaded/CMO_v1", CMO_len, 0, 0, i+2);
-      cmo3 = iCustom(NULL, 0, "downloaded/CMO_v1", CMO_len, 0, 0, i+3);
-      if(cmo0>0)
-         cmo_sum +=1;
-      if(cmo0>=cmo1)
-         if(cmo1>=cmo2)
-//            if(cmo2>=cmo3)
-               cmo_sum += 1;
-      if(cmo0<0)
-         cmo_sum -=1;
-      if(cmo0<=cmo1)
-         if(cmo1<=cmo2)
-//            if(cmo2<=cmo3)
-               cmo_sum -= 1;
-      Buffer[i] += cmo_sum/2 * CMO_weight;
-   }
-}
+   double ind_sig = iCustom(Symbol(), Period(), "my_sig_gen", 0, bar+1);
 
-void use_ima(const double &close[])
-{
-   for(int i=0; i < limit; i++)
-   {
-      double ima10 = iMA(Symbol(), Period(), 1*ima_base, 0, MODE_SMA, PRICE_TYPICAL, i);
-      double ima20 = iMA(Symbol(), Period(), 2*ima_base, 0, MODE_SMA, PRICE_TYPICAL, i);
-      double ima50 = iMA(Symbol(), Period(), 5*ima_base, 0, MODE_SMA, PRICE_TYPICAL, i);
-      double ima_sum=0;
-      if(ima20>ima50)
-         ima_sum++;
-      else
-         ima_sum--;
-      if(ima10>ima20)
-         ima_sum++;
-      else
-         ima_sum--;
-      if(close[i]>ima50)
-         ima_sum++;
-      else
-         ima_sum--;
-      if(close[i]>ima20)
-         ima_sum++;
-      else
-         ima_sum--;
-      Buffer[i] += ima_sum/4 * iMA_weight;
-   }
+   return ind_sig/1 *(Close[bar]-Open[bar])/Close[bar];
 }
 //+------------------------------------------------------------------+
-*/

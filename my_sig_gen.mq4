@@ -13,12 +13,8 @@ double         Buffer[];
 datetime    _last_open_time;
 int limit;
 //-----------------inputs
-input bool iMA_use = False;
-input int iMA_weight = 10;
-input int ima_base = 10;
-input bool CMO_use = True;
-input int CMO_weight = 10;
-input int CMO_len = 14;
+//input bool iMA_use = False;
+//input int iMA_weight = 10;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -62,12 +58,12 @@ int OnCalculate(const int rates_total,
 
 double use_ima(int bar)
 {
-   double ima10 = iMA(Symbol(), Period(), 10, 0, MODE_SMA, PRICE_TYPICAL, bar);
-   double ima20 = iMA(Symbol(), Period(), 20, 0, MODE_SMA, PRICE_TYPICAL, bar);
+   double ima10 = iMA(Symbol(), Period(), 20, 0, MODE_SMA, PRICE_TYPICAL, bar);
+   double ima20 = iMA(Symbol(), Period(), 30, 0, MODE_SMA, PRICE_TYPICAL, bar);
 
    if(ima10>ima20)
       return 1;
    else
-      return 0;
+      return -1;
 }
 //+------------------------------------------------------------------+
