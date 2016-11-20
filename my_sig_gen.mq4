@@ -50,20 +50,31 @@ int OnCalculate(const int rates_total,
    if(prev_calculated>0)
       limit++;
    for(int i=limit-1; i >= 0; i--)
-      Buffer[i]=use_ima(i);
+      Buffer[i]=ima_fuzzy(i);
 
 //--- return value of prev_calculated for next call
       return(rates_total);
 }
 
-double use_ima(int bar)
+double ima_digitised(int bar)
 {
-   double ima10 = iMA(Symbol(), Period(), 20, 0, MODE_SMA, PRICE_TYPICAL, bar);
-   double ima20 = iMA(Symbol(), Period(), 30, 0, MODE_SMA, PRICE_TYPICAL, bar);
+   if(bar > limit-80)
+      return 0;
+   double imaFast = iMA(Symbol(), Period(), 5, 0, MODE_SMA, PRICE_OPEN, bar);
+   double imaSlow = iMA(Symbol(), Period(), 20, 0, MODE_SMA, PRICE_OPEN, bar);
 
-   if(ima10>ima20)
-      return 1;
+   if(imaFast>imaSlow)
+      return +1;
    else
       return -1;
+}
+double ima_fuzzy(int bar)
+{
+   if(bar > limit-80)
+      return 0;
+   double imaFast = iMA(Symbol(), Period(), 5, 0, MODE_SMA, PRICE_OPEN, bar);
+   double imaSlow = iMA(Symbol(), Period(), 20, 0, MODE_SMA, PRICE_OPEN, bar);
+
+   return 1000*(imaFast-imaSlow);
 }
 //+------------------------------------------------------------------+

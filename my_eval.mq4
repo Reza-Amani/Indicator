@@ -69,8 +69,8 @@ int OnCalculate(const int rates_total,
 
 double ind_value_in_bar(int bar)
 {
-   double ind_sig = iCustom(Symbol(), Period(), "my_sig_gen", 0, bar+1);
+   double ind_sig = iCustom(Symbol(), Period(), "my_sig_gen", 0, bar);
 
-   return ind_sig/1 *(Close[bar]-Open[bar])/Close[bar];
+   return 1 * ind_sig/1 *(Close[bar]-Close[bar+1])/Close[bar];
 }
 //+------------------------------------------------------------------+
