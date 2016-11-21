@@ -14,6 +14,8 @@ double Buf_accomulated[];
 datetime    _last_open_time;
 int limit;
 //-----------------inputs
+input bool type_fuzzy = True;
+input int iMA_len = 10;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -69,7 +71,7 @@ int OnCalculate(const int rates_total,
 
 double ind_value_in_bar(int bar)
 {
-   double ind_sig = iCustom(Symbol(), Period(), "my_sig_gen", 0, bar);
+   double ind_sig = iCustom(Symbol(), Period(), "my_sig_gen", type_fuzzy, iMA_len, 0, bar);
 
    return 1 * ind_sig/1 *(Close[bar]-Close[bar+1])/Close[bar];
 }
