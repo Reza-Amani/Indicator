@@ -10,23 +10,25 @@
 #property indicator_plots   2
 //--- indicator buffers
 double         Buf_raw[];
-double Buf_accomulated[];
+double Buf_local_ave_profit[];
+
 datetime    _last_open_time;
 int limit;
 //-----------------inputs
 input bool type_fuzzy = True;
 input int iMA_len = 10;
+input int opt_len = 200;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
 int OnInit()
   {
 //--- indicator buffers mapping
-   SetIndexStyle(0, DRAW_HISTOGRAM, STYLE_SOLID, 1, clrBrown);
+   SetIndexStyle(0, DRAW_HISTOGRAM, STYLE_SOLID, 1, clrBlue);
    SetIndexBuffer(0,Buf_raw);
    SetIndexLabel(0 ,"value");   
    SetIndexStyle(1, DRAW_LINE, STYLE_SOLID, 1, clrRed);
-   SetIndexBuffer(1,Buf_accomulated);
+   SetIndexBuffer(1,Buf_local_ave_profit);
    SetIndexLabel(1 ,"filtered");   
    
    _last_open_time=0;
@@ -55,15 +57,14 @@ int OnCalculate(const int rates_total,
       limit++;
    else
    {
-      limit-=20;
-      Buf_accomulated[limit]=0;
-
+      for(int i=limit-1; i >= limit-1-iMA_len; i--)
+         Buf_raw[i]=0;
+      limit-=iMA_len;
    }
    for(int i=limit-1; i >= 0; i--)
    {
       Buf_raw[i]=ind_value_in_bar(i);
-      //Buf_accomulated[i]=//;iMAOnArray(Buf_raw, 0,10,0,MODE_SMA,0);
-      Buf_accomulated[i]=Buf_accomulated[i+1]+Buf_raw[i];
+      Buf_local_ave_profit[i]=iMAOnArray(Buf_raw, 0,opt_len,i,MODE_SMA,0);
    }
 //--- return value of prev_calculated for next call
       return(rates_total);
