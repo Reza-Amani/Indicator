@@ -15,9 +15,9 @@ double Buf_local_ave_profit[];
 datetime    _last_open_time;
 int limit;
 //-----------------inputs
+input int opt_len = 200;
 input bool type_fuzzy = True;
 input int iMA_len = 10;
-input int opt_len = 200;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -64,7 +64,7 @@ int OnCalculate(const int rates_total,
    for(int i=limit-1; i >= 0; i--)
    {
       Buf_raw[i]=ind_value_in_bar(i);
-      Buf_local_ave_profit[i]=iMAOnArray(Buf_raw, 0,opt_len,i,MODE_SMA,0);
+      Buf_local_ave_profit[i]=iMAOnArray(Buf_raw, 0,opt_len,i,MODE_LWMA,0);
    }
 //--- return value of prev_calculated for next call
       return(rates_total);

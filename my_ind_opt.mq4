@@ -10,11 +10,13 @@
 #property indicator_plots   2
 //--- indicator buffers
 double         Buf_ima_max[];
+double         Buf_eval_max[];
 
 datetime    _last_open_time;
 int limit;
 int iMA_array[5];
 //-----------------inputs
+input int opt_len = 200;
 input bool type_fuzzy = True;
 input int iMA_len_0 =10;
 input int iMA_len_1 =20;
@@ -27,9 +29,13 @@ input int iMA_len_4 =50;
 int OnInit()
   {
 //--- indicator buffers mapping
-   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrGreen);
+   SetIndexStyle(0, DRAW_HISTOGRAM, STYLE_SOLID, 1, clrGreen);
    SetIndexBuffer(0,Buf_ima_max);
-   SetIndexLabel(0 ,"best ima len");   
+   SetIndexLabel(0 ,"best ima len");  
+    
+   SetIndexStyle(1, DRAW_LINE, STYLE_SOLID, 1, clrYellow);
+   SetIndexBuffer(1,Buf_eval_max);
+   SetIndexLabel(1 ,"max eval");   
    
    iMA_array[0]=iMA_len_0;
    iMA_array[1]=iMA_len_1;
@@ -68,8 +74,9 @@ int OnCalculate(const int rates_total,
    for(int i=limit-1; i >= 0; i--)
    {
       for(int j=0; j<5; j++)
-         eval[j]=iCustom(Symbol(), Period(), "my_eval", type_fuzzy, iMA_array[j], 0, i);
-      Buf_ima_max[i]=iMA_array[max_index(eval[0],eval[1],eval[2],eval[3],eval[4])];
+         eval[j]=iCustom(Symbol(), Period(), "my_eval", opt_len, type_fuzzy, iMA_array[j], 1, i);
+      Buf_ima_max[i]=max_index(0,eval[0],eval[1],eval[2],eval[3],eval[4]);
+      Buf_eval_max[i]=100*eval[max_index(eval[0],eval[1],eval[2],eval[3],eval[4])];
    }
 //--- return value of prev_calculated for next call
       return(rates_total);
@@ -86,7 +93,7 @@ double max(double v1, double v2=-1, double v3=-1, double v4=-1, double v5=-1, do
    if(v6>result)  result=v6;
    return result;
 }
-int max_index(double v1, double v2=-1, double v3=-1, double v4=-1, double v5=-1, double v6=-1)
+int max_index(double v1, double v2=-1000, double v3=-1000, double v4=-1000, double v5=-1000, double v6=-1000)
 {
    int index = 0;
    double Max = v1;
