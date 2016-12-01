@@ -17,7 +17,6 @@ double         Buf_ima_4[];
 
 datetime    _last_open_time;
 int limit;
-int iMA_array[5];
 //-----------------inputs
 input int opt_len = 200;
 input bool type_fuzzy = False;
@@ -52,11 +51,6 @@ int OnInit()
    SetIndexBuffer(4,Buf_ima_4);
    SetIndexLabel(4 ,"ima 4");   
    
-   iMA_array[0]=iMA_len_0;
-   iMA_array[1]=iMA_len_1;
-   iMA_array[2]=iMA_len_2;
-   iMA_array[3]=iMA_len_3;
-   iMA_array[4]=iMA_len_4;
    _last_open_time=0;
    limit = 0;
 //---
@@ -83,13 +77,16 @@ int OnCalculate(const int rates_total,
       limit++;
    else
    {
-//      limit-=max(iMA_len_1,iMA_len_2,iMA_len_3,iMA_len_4,iMA_len_5);
+      limit-=100;//max(iMA_len_1,iMA_len_2,iMA_len_3,iMA_len_4,iMA_len_5);
    }
    double eval[5];
    for(int i=limit-1; i >= 0; i--)
    {
-      for(int j=0; j<5; j++)
-         eval[j]=iCustom(Symbol(), Period(), "my_IMA_eval", opt_len, type_fuzzy, iMA_array[j], 1, i);
+      Buf_ima_0[i]=iCustom(Symbol(), Period(), "my_IMA_eval", opt_len, type_fuzzy, iMA_len_0, 1, i);
+      Buf_ima_1[i]=iCustom(Symbol(), Period(), "my_IMA_eval", opt_len, type_fuzzy, iMA_len_1, 1, i);
+      Buf_ima_2[i]=iCustom(Symbol(), Period(), "my_IMA_eval", opt_len, type_fuzzy, iMA_len_2, 1, i);
+      Buf_ima_3[i]=iCustom(Symbol(), Period(), "my_IMA_eval", opt_len, type_fuzzy, iMA_len_3, 1, i);
+      Buf_ima_4[i]=iCustom(Symbol(), Period(), "my_IMA_eval", opt_len, type_fuzzy, iMA_len_4, 1, i);
    }
 //--- return value of prev_calculated for next call
       return(rates_total);

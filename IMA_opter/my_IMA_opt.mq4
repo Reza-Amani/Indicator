@@ -17,12 +17,12 @@ int limit;
 int iMA_array[5];
 //-----------------inputs
 input int opt_len = 200;
-input bool type_fuzzy = True;
-input int iMA_len_0 =10;
-input int iMA_len_1 =20;
-input int iMA_len_2 =30;
-input int iMA_len_3 =40;
-input int iMA_len_4 =50;
+input bool type_fuzzy = False;
+input int iMA_len_0 =3;
+input int iMA_len_1 =5;
+input int iMA_len_2 =8;
+input int iMA_len_3 =12;
+input int iMA_len_4 =15;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -74,9 +74,9 @@ int OnCalculate(const int rates_total,
    for(int i=limit-1; i >= 0; i--)
    {
       for(int j=0; j<5; j++)
-         eval[j]=iCustom(Symbol(), Period(), "my_eval", opt_len, type_fuzzy, iMA_array[j], 1, i);
+         eval[j]=iCustom(Symbol(), Period(), "my_IMA_eval", opt_len, type_fuzzy, iMA_array[j], 1, i);
       Buf_ima_max[i]=max_index(0,eval[0],eval[1],eval[2],eval[3],eval[4]);
-      Buf_eval_max[i]=100*eval[max_index(eval[0],eval[1],eval[2],eval[3],eval[4])];
+      Buf_eval_max[i]=max(0,100*eval[max_index(eval[0],eval[1],eval[2],eval[3],eval[4])]);
    }
 //--- return value of prev_calculated for next call
       return(rates_total);
