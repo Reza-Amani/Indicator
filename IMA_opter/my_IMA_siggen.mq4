@@ -60,8 +60,8 @@ int OnCalculate(const int rates_total,
 
 double sig_digitised(int bar)
 {
-   if(bar > limit-80)
-      return 0;
+//   if(bar > limit-80)
+  //    return 0.1;
    double imaFast = iMA(Symbol(), Period(), iMA_short_len, 0, MODE_LWMA, PRICE_OPEN, bar);
    double imaSlow = iMA(Symbol(), Period(), iMA_short_len * iMA_fast_len_factor, 0, MODE_SMA, PRICE_OPEN, bar);
 
