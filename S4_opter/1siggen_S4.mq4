@@ -98,7 +98,8 @@ double sig_digitised(int bar)
          if( ! ((Open[bar]>imaFast) && (imaFast>imaSlow)) )
             state = 0;  //return t null state
          else
-            state = 2;  //confirmed
+            if(confirm_bull(bar))
+               state = 2;
          break;
       case 2:  //confirmed, wait for trade oppurtunity
                if( ! ((Open[bar]>imaFast) && (imaFast>imaSlow)) )
@@ -112,7 +113,8 @@ double sig_digitised(int bar)
          if( ! ((Open[bar]<imaFast) && (imaFast<imaSlow)) )
             state = 0;  //return t null state
          else
-            state = -2;  //confirmed
+            if(confirm_bear(bar))
+               state = -2;
          break;
       case -2:  //confirmed, wait for trade oppurtunity
                if( ! ((Open[bar]<imaFast) && (imaFast<imaSlow)) )
@@ -123,8 +125,30 @@ double sig_digitised(int bar)
    }
    if(state>=2)
       return +1;
-   else if(state<=-1)
+   else if(state<=-2)
       return -1;
    else
       return 0;
+
+                                                         
 }//+------------------------------------------------------------------+
+bool confirm_bull(int bar)
+{
+   double ROCFast = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_CLOSE,1 ,PRICE_CLOSE,MODE_SMA,13,   0    ,    10    ,0, bar);
+                                                                           // inp,PRICE_CLOSE,MA,MAprice    ,MAmode,ROC per,ROC meth,MAROCper
+   double ROCSlow = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_CLOSE,1 ,PRICE_CLOSE,MODE_SMA,13,   0    ,    10    ,1, bar);
+   if(ROCFast>ROCSlow)
+      return true;
+   else
+      return false;
+}
+bool confirm_bear(int bar)
+{
+   double ROCFast = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_CLOSE,1 ,PRICE_CLOSE,MODE_SMA,13,   0    ,    10    ,0, bar);
+                                                                           // inp,PRICE_CLOSE,MA,MAprice    ,MAmode,ROC per,ROC meth,MAROCper
+   double ROCSlow = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_CLOSE,1 ,PRICE_CLOSE,MODE_SMA,13,   0    ,    10    ,1, bar);
+   if(ROCFast<ROCSlow)
+      return true;
+   else
+      return false;
+}
