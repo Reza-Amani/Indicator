@@ -19,6 +19,9 @@ int state=0;
 //-----------------inputs
 input bool type_fuzzy = False;
 input int iMA_short_len = 20;
+input bool use_ROC_confirm = True;
+input int ROC_period = 13;
+input int ROC_MA_per = 10;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -134,9 +137,11 @@ double sig_digitised(int bar)
 }//+------------------------------------------------------------------+
 bool confirm_bull(int bar)
 {
-   double ROCFast = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_CLOSE,1 ,PRICE_CLOSE,MODE_SMA,13,   0    ,    10    ,0, bar);
-                                                                           // inp,PRICE_CLOSE,MA,MAprice    ,MAmode,ROC per,ROC meth,MAROCper
-   double ROCSlow = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_CLOSE,1 ,PRICE_CLOSE,MODE_SMA,13,   0    ,    10    ,1, bar);
+   if( ! use_ROC_confirm)
+      return true;
+   double ROCFast = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_OPEN,1 ,PRICE_OPEN,MODE_SMA,ROC_period,   1    ,ROC_MA_per,0, bar);
+                                                                  // inp,PRICE_CLOSE,MA,MAprice    ,MAmode,ROC per,   ROC meth,MAROCper
+   double ROCSlow = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_OPEN,1 ,PRICE_OPEN,MODE_SMA,ROC_period,   1    ,ROC_MA_per,1, bar);
    if(ROCFast>ROCSlow)
       return true;
    else
@@ -144,9 +149,11 @@ bool confirm_bull(int bar)
 }
 bool confirm_bear(int bar)
 {
-   double ROCFast = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_CLOSE,1 ,PRICE_CLOSE,MODE_SMA,13,   0    ,    10    ,0, bar);
-                                                                           // inp,PRICE_CLOSE,MA,MAprice    ,MAmode,ROC per,ROC meth,MAROCper
-   double ROCSlow = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_CLOSE,1 ,PRICE_CLOSE,MODE_SMA,13,   0    ,    10    ,1, bar);
+   if( ! use_ROC_confirm)
+      return true;
+   double ROCFast = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_OPEN,1 ,PRICE_OPEN,MODE_SMA,ROC_period,   1    ,ROC_MA_per,0, bar);
+                                                                   // inp,PRICE_CLOSE,MA,MAprice    ,MAmode,ROC per,   ROC meth,MAROCper
+   double ROCSlow = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_OPEN,1 ,PRICE_OPEN,MODE_SMA,ROC_period,   1    ,ROC_MA_per,1, bar);
    if(ROCFast<ROCSlow)
       return true;
    else

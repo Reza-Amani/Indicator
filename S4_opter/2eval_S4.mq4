@@ -6,18 +6,22 @@
 #property copyright "Reza"
 #property strict
 #property indicator_separate_window
-#property indicator_buffers 2
-#property indicator_plots   2
+#property indicator_buffers 3
+#property indicator_plots   3
 //--- indicator buffers
 double         Buf_raw[];
 double Buf_local_ave_profit[];
+double Buf_accumulated_profit[];
 
 datetime    _last_open_time;
 int limit;
 //-----------------inputs
 input int opt_len = 200;
 input bool type_fuzzy = False;
-input int iMA_short_len = 5;
+input int iMA_short_len = 20;
+input bool use_ROC_confirm = True;
+input int ROC_period = 13;
+input int ROC_MA_per = 10;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -30,6 +34,9 @@ int OnInit()
    SetIndexStyle(1, DRAW_LINE, STYLE_SOLID, 1, clrRed);
    SetIndexBuffer(1,Buf_local_ave_profit);
    SetIndexLabel(1 ,"filtered");   
+   SetIndexStyle(2, DRAW_LINE, STYLE_SOLID, 1, clrWheat);
+   SetIndexBuffer(2,Buf_accumulated_profit);
+   SetIndexLabel(2 ,"accumulated");   
    
    _last_open_time=0;
    limit = 0;
@@ -61,10 +68,12 @@ int OnCalculate(const int rates_total,
          Buf_raw[i]=0;
       limit-=iMA_short_len;
    }
+   Buf_accumulated_profit[limit]=0;
    for(int i=limit-1; i >= 0; i--)
    {
       Buf_raw[i]=ind_value_in_bar(i);
       Buf_local_ave_profit[i]=iMAOnArray(Buf_raw, 0,opt_len,i,MODE_LWMA,0)*10;
+      Buf_accumulated_profit[i] = Buf_accumulated_profit[i+1]+Buf_raw[i];
    }
 //--- return value of prev_calculated for next call
       return(rates_total);
@@ -72,7 +81,7 @@ int OnCalculate(const int rates_total,
 
 double ind_value_in_bar(int bar)
 {
-   double ind_sig = iCustom(Symbol(), Period(), "my_IMA_siggen", type_fuzzy, iMA_short_len, 0, bar);
+   double ind_sig = iCustom(Symbol(), Period(), "1siggen_S4", type_fuzzy, iMA_short_len,use_ROC_confirm,ROC_period,ROC_MA_per, 0, bar);
 
    return 100 * ind_sig/1 *(Close[bar]-Close[bar+1])/Close[bar];
 }
