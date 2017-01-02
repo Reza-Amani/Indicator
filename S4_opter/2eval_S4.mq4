@@ -3,11 +3,17 @@
 //|                                                             Reza |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
+//#define _show_accumulated
 #property copyright "Reza"
 #property strict
 #property indicator_separate_window
+#ifdef _show_accumulated
 #property indicator_buffers 3
 #property indicator_plots   3
+#else
+#property indicator_buffers 2
+#property indicator_plots   2
+#endif 
 //--- indicator buffers
 double         Buf_raw[];
 double Buf_local_ave_profit[];
@@ -34,10 +40,11 @@ int OnInit()
    SetIndexStyle(1, DRAW_LINE, STYLE_SOLID, 1, clrRed);
    SetIndexBuffer(1,Buf_local_ave_profit);
    SetIndexLabel(1 ,"filtered");   
+#ifdef _show_accumulated
    SetIndexStyle(2, DRAW_LINE, STYLE_SOLID, 1, clrWheat);
    SetIndexBuffer(2,Buf_accumulated_profit);
    SetIndexLabel(2 ,"accumulated");   
-   
+#endif    
    _last_open_time=0;
    limit = 0;
 //---
@@ -68,12 +75,16 @@ int OnCalculate(const int rates_total,
          Buf_raw[i]=0;
       limit-=iMA_short_len;
    }
+#ifdef _show_accumulated
    Buf_accumulated_profit[limit]=0;
+#endif 
    for(int i=limit-1; i >= 0; i--)
    {
       Buf_raw[i]=ind_value_in_bar(i);
       Buf_local_ave_profit[i]=iMAOnArray(Buf_raw, 0,opt_len,i,MODE_LWMA,0)*10;
+#ifdef _show_accumulated
       Buf_accumulated_profit[i] = Buf_accumulated_profit[i+1]+Buf_raw[i];
+#endif 
    }
 //--- return value of prev_calculated for next call
       return(rates_total);

@@ -9,22 +9,26 @@
 #property indicator_buffers 5
 #property indicator_plots   5
 //--- indicator buffers
-double         Buf_ima_0[];
-double         Buf_ima_1[];
-double         Buf_ima_2[];
-double         Buf_ima_3[];
-double         Buf_ima_4[];
+double         Buf_eval_0[];
+double         Buf_eval_1[];
+double         Buf_eval_2[];
+double         Buf_eval_3[];
+double         Buf_eval_4[];
 
 datetime    _last_open_time;
 int limit;
 //-----------------inputs
 input int opt_len = 200;
 input bool type_fuzzy = False;
-input int iMA_len_0 =3;
-input int iMA_len_1 =5;
-input int iMA_len_2 =8;
-input int iMA_len_3 =12;
-input int iMA_len_4 =15;
+input int iMA_short_len_0 = 5;
+input int iMA_short_len_1 = 8;
+input int iMA_short_len_2 = 12;
+input int iMA_short_len_3 = 15;
+input int iMA_short_len_4 = 20;
+input bool use_ROC_confirm = True;
+input int ROC_period = 13;
+input int ROC_MA_per = 10;
+
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -32,24 +36,24 @@ int OnInit()
   {
 //--- indicator buffers mapping
    SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrWhite);
-   SetIndexBuffer(0,Buf_ima_0);
-   SetIndexLabel(0 ,"ima 0");   
+   SetIndexBuffer(0,Buf_eval_0);
+   SetIndexLabel(0 ,"eval 0");   
    
    SetIndexStyle(1, DRAW_LINE, STYLE_SOLID, 1, clrOldLace);
-   SetIndexBuffer(1,Buf_ima_1);
-   SetIndexLabel(1 ,"ima 1");   
+   SetIndexBuffer(1,Buf_eval_1);
+   SetIndexLabel(1 ,"eval 1");   
    
    SetIndexStyle(2, DRAW_LINE, STYLE_SOLID, 1, clrPeachPuff);
-   SetIndexBuffer(2,Buf_ima_2);
-   SetIndexLabel(2 ,"ima 2");   
+   SetIndexBuffer(2,Buf_eval_2);
+   SetIndexLabel(2 ,"eval 2");   
    
    SetIndexStyle(3, DRAW_LINE, STYLE_SOLID, 1, clrBurlyWood);
-   SetIndexBuffer(3,Buf_ima_3);
-   SetIndexLabel(3 ,"ima 3");   
+   SetIndexBuffer(3,Buf_eval_3);
+   SetIndexLabel(3 ,"eval 3");   
    
    SetIndexStyle(4, DRAW_LINE, STYLE_SOLID, 1, clrDarkSalmon);
-   SetIndexBuffer(4,Buf_ima_4);
-   SetIndexLabel(4 ,"ima 4");   
+   SetIndexBuffer(4,Buf_eval_4);
+   SetIndexLabel(4 ,"eval 4");   
    
    _last_open_time=0;
    limit = 0;
@@ -82,11 +86,16 @@ int OnCalculate(const int rates_total,
    double eval[5];
    for(int i=limit-1; i >= 0; i--)
    {
-      Buf_ima_0[i]=iCustom(Symbol(), Period(), "my_IMA_eval", opt_len, type_fuzzy, iMA_len_0, 1, i);
-      Buf_ima_1[i]=iCustom(Symbol(), Period(), "my_IMA_eval", opt_len, type_fuzzy, iMA_len_1, 1, i);
-      Buf_ima_2[i]=iCustom(Symbol(), Period(), "my_IMA_eval", opt_len, type_fuzzy, iMA_len_2, 1, i);
-      Buf_ima_3[i]=iCustom(Symbol(), Period(), "my_IMA_eval", opt_len, type_fuzzy, iMA_len_3, 1, i);
-      Buf_ima_4[i]=iCustom(Symbol(), Period(), "my_IMA_eval", opt_len, type_fuzzy, iMA_len_4, 1, i);
+      Buf_eval_0[i]=iCustom(Symbol(), Period(), "2eval_S4", opt_len, type_fuzzy, iMA_short_len_0,
+         use_ROC_confirm,ROC_period,ROC_MA_per, 1, i);
+      Buf_eval_1[i]=iCustom(Symbol(), Period(), "2eval_S4", opt_len, type_fuzzy, iMA_short_len_1,
+         use_ROC_confirm,ROC_period,ROC_MA_per, 1, i);
+      Buf_eval_2[i]=iCustom(Symbol(), Period(), "2eval_S4", opt_len, type_fuzzy, iMA_short_len_2,
+         use_ROC_confirm,ROC_period,ROC_MA_per, 1, i);
+      Buf_eval_3[i]=iCustom(Symbol(), Period(), "2eval_S4", opt_len, type_fuzzy, iMA_short_len_3,
+         use_ROC_confirm,ROC_period,ROC_MA_per, 1, i);
+      Buf_eval_4[i]=iCustom(Symbol(), Period(), "2eval_S4", opt_len, type_fuzzy, iMA_short_len_4,
+         use_ROC_confirm,ROC_period,ROC_MA_per, 1, i);
    }
 //--- return value of prev_calculated for next call
       return(rates_total);
