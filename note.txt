@@ -1,0 +1,5 @@
+false trades?
+
+stage3: buy if RSI<70 and RSI0>RSI1 
+	close if RSI drops from 70
+	RSI(10)

@@ -22,6 +22,8 @@ input int iMA_short_len = 20;
 input bool use_ROC_confirm = True;
 input int ROC_period = 13;
 input int ROC_MA_per = 10;
+input bool use_RSI_enter = True;
+input int RSI_len = 10;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -87,6 +89,8 @@ double sig_digitised(int bar)
    //and update the state
    double imaFast = iMA(Symbol(), Period(), iMA_short_len, 0, MODE_LWMA, PRICE_OPEN, bar);
    double imaSlow = iMA(Symbol(), Period(), iMA_short_len * iMA_fast_len_factor, 0, MODE_SMA, PRICE_OPEN, bar);
+   double RSI0 = iRSI(Symbol(), Period(), RSI_len,PRICE_OPEN,bar);
+   double RSI1 = iRSI(Symbol(), Period(), RSI_len,PRICE_OPEN,bar+1);
 
    switch(state)
    {
@@ -105,10 +109,18 @@ double sig_digitised(int bar)
                state = 2;
          break;
       case 2:  //confirmed, wait for trade oppurtunity
-               if( ! ((Open[bar]>imaFast) && (imaFast>imaSlow)) )
-                  state = 0;  //return t null state
-               else
-                  state = 2;  //confirmed
+         if( ! ((Open[bar]>imaFast) && (imaFast>imaSlow)) )
+            state = 0;  //return t null state
+         else
+            if( ! use_RSI_enter)
+               state = 3;
+            else
+               if( (RSI1<70) && (RSI0>=RSI1) )
+                  state = 3;
+         break;
+      case 3:  //in trade, wait for trade exit
+         if( ! ((Open[bar]>imaFast) && (imaFast>imaSlow)) )
+            state = 0;  //return to null state
          break;
 
 
@@ -120,15 +132,23 @@ double sig_digitised(int bar)
                state = -2;
          break;
       case -2:  //confirmed, wait for trade oppurtunity
-               if( ! ((Open[bar]<imaFast) && (imaFast<imaSlow)) )
-                  state = 0;  //return t null state
-               else
-                  state = -2;  //confirmed
+         if( ! ((Open[bar]<imaFast) && (imaFast<imaSlow)) )
+            state = 0;  //return t null state
+         else
+            if( ! use_RSI_enter)
+               state = -3;
+            else
+               if( (RSI1>-70) && (RSI0<=RSI1) )
+                  state = -3;
+         break;
+      case -3:  //confirmed, wait for trade oppurtunity
+         if( ! ((Open[bar]<imaFast) && (imaFast<imaSlow)) )
+            state = 0;  //return to null state
          break;
    }
-   if(state>=2)
+   if(state>=3)
       return +1;
-   else if(state<=-2)
+   else if(state<=-3)
       return -1;
    else
       return 0;
