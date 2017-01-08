@@ -58,15 +58,18 @@ int OnCalculate(const int rates_total,
                 const int &spread[])
   {
 //---
-   _last_open_time = time[0];
-   limit = rates_total - prev_calculated;
-   if(prev_calculated>0)
-      limit++;
-   for(int i=limit-1; i >= 0; i--)
+//   if( _last_open_time != time[0])  //new bar
    {
-      Buffer_sig[i]=(type_fuzzy) ? sig_fuzzy(i) : sig_digitised(i);
-      Buffer_state[i]=state;
-    }
+      _last_open_time = time[0];
+      limit = rates_total - prev_calculated;
+//      if(prev_calculated>0)
+//         limit++;
+      for(int i=limit-1; i >= 0; i--)
+      {
+         Buffer_sig[i]=(type_fuzzy) ? sig_fuzzy(i) : sig_digitised(i);
+         Buffer_state[i]=state;
+       }
+   }
 
 //--- return value of prev_calculated for next call
       return(rates_total);
