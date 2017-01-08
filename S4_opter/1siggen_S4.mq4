@@ -58,18 +58,15 @@ int OnCalculate(const int rates_total,
                 const int &spread[])
   {
 //---
-//   if( _last_open_time != time[0])  //new bar
-   {
-      _last_open_time = time[0];
-      limit = rates_total - prev_calculated;
+   _last_open_time = time[0];
+   limit = rates_total - prev_calculated;
 //      if(prev_calculated>0)
 //         limit++;
-      for(int i=limit-1; i >= 0; i--)
-      {
-         Buffer_sig[i]=(type_fuzzy) ? sig_fuzzy(i) : sig_digitised(i);
-         Buffer_state[i]=state;
-       }
-   }
+   for(int i=limit-1; i >= 0; i--)
+   {
+      Buffer_sig[i]=(type_fuzzy) ? sig_fuzzy(i) : sig_digitised(i);
+      Buffer_state[i]=state;
+    }
 
 //--- return value of prev_calculated for next call
       return(rates_total);
@@ -92,8 +89,10 @@ double sig_digitised(int bar)
    //and update the state
    double imaFast = iMA(Symbol(), Period(), iMA_short_len, 0, MODE_LWMA, PRICE_OPEN, bar);
    double imaSlow = iMA(Symbol(), Period(), iMA_short_len * iMA_fast_len_factor, 0, MODE_SMA, PRICE_OPEN, bar);
-   double RSI0 = iRSI(Symbol(), Period(), RSI_len,PRICE_OPEN,bar);
-   double RSI1 = iRSI(Symbol(), Period(), RSI_len,PRICE_OPEN,bar+1);
+   double RSI0 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+1);
+   double RSI1 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+2);
+   
+   Comment("ind: 1: ", RSI1,"   0: ", RSI0);
 
    switch(state)
    {
@@ -113,17 +112,19 @@ double sig_digitised(int bar)
          break;
       case 2:  //confirmed, wait for trade oppurtunity
          if( ! ((Open[bar]>imaFast) && (imaFast>imaSlow)) )
-            state = 0;  //return t null state
+            state = 0;  //return to null state
          else
             if( ! use_RSI_enter)
                state = 3;
             else
-               if( (RSI1<70) && (RSI0>=RSI1) )
+               if( (RSI1<70) && (RSI0>RSI1) )
                   state = 3;
          break;
       case 3:  //in trade, wait for trade exit
          if( ! ((Open[bar]>imaFast) && (imaFast>imaSlow)) )
             state = 0;  //return to null state
+         if( (RSI1>=70) && (RSI0<70) )
+            state = 0;  //return to null state if RSI drop to below 70   
          break;
 
 
@@ -141,12 +142,14 @@ double sig_digitised(int bar)
             if( ! use_RSI_enter)
                state = -3;
             else
-               if( (RSI1>-70) && (RSI0<=RSI1) )
+               if( (RSI1>30) && (RSI0<RSI1) )
                   state = -3;
          break;
       case -3:  //confirmed, wait for trade oppurtunity
          if( ! ((Open[bar]<imaFast) && (imaFast<imaSlow)) )
             state = 0;  //return to null state
+         if( (RSI1<=30) && (RSI0>30) )
+            state = 0;  //return to null state if RSI rises to above 30   
          break;
    }
    if(state>=3)
