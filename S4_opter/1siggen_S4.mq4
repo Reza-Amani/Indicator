@@ -124,10 +124,11 @@ double sig_digitised(int bar)
                   state = 3;
          break;
       case 3:  //in trade, wait for trade exit
-         if( ! ((Open[bar]>imaFast) && (imaFast>imaSlow)) )
-            state = 1;  //return to wait-for-confirm state
-         if( (RSI1>=70) && (RSI0<70) )
-            state = 0;  //return to null state if RSI drop to below 70   
+         if( ! ((Open[bar]>imaSlow) && (imaFast>imaSlow)) )
+            state = 0;  //end of trend
+         if( use_RSI_enter)
+            if( (RSI1>=70) && (RSI0<70) )
+               state = 2;  //make profit and return to confirmed state if RSI drop to below 70   
          break;
 
 
@@ -149,10 +150,11 @@ double sig_digitised(int bar)
                   state = -3;
          break;
       case -3:  //confirmed, wait for trade oppurtunity
-         if( ! (imaFast<imaSlow) )
-            state = -1;  //return to wait-for-confirm state
-         if( (RSI1<=30) && (RSI0>30) )
-            state = 0;  //return to null state if RSI rises to above 30   
+         if( ! ((Open[bar]<imaSlow) && (imaFast<imaSlow)) )
+            state = 0;  //end of trend
+         if( use_RSI_enter)
+            if( (RSI1<=30) && (RSI0>30) )
+               state = -2; //make profit and return to confirmed state if RSI rises to above 70   
          break;
    }
    if(state>=3)
