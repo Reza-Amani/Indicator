@@ -19,10 +19,10 @@ int state=0;
 //-----------------inputs
 input bool type_fuzzy = False;
 input int iMA_short_len = 20;
-input bool use_ADX_confirm = True;
+input bool use_ADX_confirm = False;
 input int ADX_period = 20;
 input int ADX_level = 20;
-input bool use_RSI_enter = True;
+input bool use_RSI_enter = False;
 input int RSI_len = 10;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |

@@ -18,17 +18,17 @@ double         Buf_eval_4[];
 datetime    _last_open_time;
 int limit;
 //-----------------inputs
-input int opt_len = 200;
+input int opt_len = 800;
 input bool type_fuzzy = False;
 input int iMA_short_len_0 = 5;
 input int iMA_short_len_1 = 8;
 input int iMA_short_len_2 = 12;
-input int iMA_short_len_3 = 15;
-input int iMA_short_len_4 = 20;
-input bool use_ADX_confirm = True;
+input int iMA_short_len_3 = 20;
+input int iMA_short_len_4 = 50;
+input bool use_ADX_confirm = False;
 input int ADX_period = 20;
 input int ADX_level = 20;
-input bool use_RSI_enter = True;
+input bool use_RSI_enter = False;
 input int RSI_len = 10;
 
 //+------------------------------------------------------------------+

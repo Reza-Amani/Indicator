@@ -16,17 +16,17 @@ datetime    _last_open_time;
 int limit;
 int iMA_array[5];
 //-----------------inputs
-input int opt_len = 200;
+input int opt_len = 800;
 input bool type_fuzzy = False;
-input int iMA_len_0 =3;
-input int iMA_len_1 =5;
-input int iMA_len_2 =8;
-input int iMA_len_3 =12;
-input int iMA_len_4 =15;
-input bool use_ADX_confirm = True;
+input int iMA_len_0 =5;
+input int iMA_len_1 =8;
+input int iMA_len_2 =12;
+input int iMA_len_3 =20;
+input int iMA_len_4 =50;
+input bool use_ADX_confirm = False;
 input int ADX_period = 20;
 input int ADX_level = 20;
-input bool use_RSI_enter = True;
+input bool use_RSI_enter = False;
 input int RSI_len = 10;
 
 //+------------------------------------------------------------------+
