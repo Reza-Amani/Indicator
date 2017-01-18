@@ -26,6 +26,8 @@ input int iMA_len_4 =15;
 input bool use_ADX_confirm = True;
 input int ADX_period = 20;
 input int ADX_level = 20;
+input bool use_RSI_enter = True;
+input int RSI_len = 10;
 
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
@@ -79,7 +81,7 @@ int OnCalculate(const int rates_total,
    {
       for(int j=0; j<5; j++)
          eval[j]=iCustom(Symbol(), Period(), "2eval_S4", opt_len, type_fuzzy, iMA_array[j],
-            use_ADX_confirm,ADX_period,ADX_level, 1, i);
+            use_ADX_confirm,ADX_period,ADX_level,use_RSI_enter,RSI_len, 1, i);
 
       Buf_ima_max[i]=max_index(0,eval[0],eval[1],eval[2],eval[3],eval[4]);
       Buf_eval_max[i]=max(0,100*eval[max_index(eval[0],eval[1],eval[2],eval[3],eval[4])]);

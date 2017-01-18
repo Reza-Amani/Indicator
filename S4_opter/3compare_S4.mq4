@@ -28,6 +28,8 @@ input int iMA_short_len_4 = 20;
 input bool use_ADX_confirm = True;
 input int ADX_period = 20;
 input int ADX_level = 20;
+input bool use_RSI_enter = True;
+input int RSI_len = 10;
 
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
@@ -87,15 +89,15 @@ int OnCalculate(const int rates_total,
    for(int i=limit-1; i >= 0; i--)
    {
       Buf_eval_0[i]=iCustom(Symbol(), Period(), "2eval_S4", opt_len, type_fuzzy, iMA_short_len_0,
-         use_ADX_confirm,ADX_period,ADX_level, 1, i);
+         use_ADX_confirm,ADX_period,ADX_level,use_RSI_enter,RSI_len, 1, i);
       Buf_eval_1[i]=iCustom(Symbol(), Period(), "2eval_S4", opt_len, type_fuzzy, iMA_short_len_1,
-         use_ADX_confirm,ADX_period,ADX_level, 1, i);
+         use_ADX_confirm,ADX_period,ADX_level,use_RSI_enter,RSI_len, 1, i);
       Buf_eval_2[i]=iCustom(Symbol(), Period(), "2eval_S4", opt_len, type_fuzzy, iMA_short_len_2,
-         use_ADX_confirm,ADX_period,ADX_level, 1, i);
+         use_ADX_confirm,ADX_period,ADX_level,use_RSI_enter,RSI_len, 1, i);
       Buf_eval_3[i]=iCustom(Symbol(), Period(), "2eval_S4", opt_len, type_fuzzy, iMA_short_len_3,
-         use_ADX_confirm,ADX_period,ADX_level, 1, i);
+         use_ADX_confirm,ADX_period,ADX_level,use_RSI_enter,RSI_len, 1, i);
       Buf_eval_4[i]=iCustom(Symbol(), Period(), "2eval_S4", opt_len, type_fuzzy, iMA_short_len_4,
-         use_ADX_confirm,ADX_period,ADX_level, 1, i);
+         use_ADX_confirm,ADX_period,ADX_level,use_RSI_enter,RSI_len, 1, i);
    }
 //--- return value of prev_calculated for next call
       return(rates_total);

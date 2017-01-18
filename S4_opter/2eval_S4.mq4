@@ -3,7 +3,8 @@
 //|                                                             Reza |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
-//#define _show_accumulated
+
+#define _show_accumulated
 #property copyright "Reza"
 #property strict
 #property indicator_separate_window
@@ -28,6 +29,8 @@ input int iMA_short_len = 20;
 input bool use_ADX_confirm = True;
 input int ADX_period = 20;
 input int ADX_level = 20;
+input bool use_RSI_enter = True;
+input int RSI_len = 10;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -92,7 +95,7 @@ int OnCalculate(const int rates_total,
 
 double ind_value_in_bar(int bar)
 {
-   double ind_sig = iCustom(Symbol(), Period(), "1siggen_S4", type_fuzzy, iMA_short_len,use_ADX_confirm,ADX_period,ADX_level, 0, bar);
+   double ind_sig = iCustom(Symbol(), Period(), "1siggen_S4", type_fuzzy, iMA_short_len,use_ADX_confirm,ADX_period,ADX_level,use_RSI_enter,RSI_len, 0, bar);
 
    return 100 * ind_sig/1 *(Close[bar]-Close[bar+1])/Close[bar];
 }
