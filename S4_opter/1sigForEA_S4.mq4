@@ -6,19 +6,22 @@
 #property copyright "Reza"
 #property strict
 #property indicator_separate_window
-#property indicator_buffers 2
-#property indicator_plots   2
+#property indicator_buffers 3
+#property indicator_plots   3
 //--- indicator buffers
 double         Buffer_sig[];
 double         Buffer_state[];
+double         Buffer_ima[];
 datetime    _last_open_time;
 int limit;
 int state=0;
+int iMA_len_1, iMA_len_2, iMA_len_3, iMA_len_4, iMA_len_5;
+int opt_iMA_short=1;
 //-----------------macros
 #define iMA_fast_len_factor 3
 //-----------------inputs
 input bool type_fuzzy = False;
-input int iMA_short_len = 20;
+input int iMA_short_base =10;
 input bool use_ADX_confirm = False;
 input int ADX_period = 20;
 input int ADX_level = 20;
@@ -38,8 +41,17 @@ int OnInit()
    SetIndexBuffer(1,Buffer_state);
    SetIndexLabel(1 ,"state");   
    
+   SetIndexStyle(2, DRAW_LINE, STYLE_SOLID, 1, clrChocolate);
+   SetIndexBuffer(2,Buffer_ima);
+   SetIndexLabel(2 ,"ima short");   
+   
    _last_open_time=0;
    limit = 0;
+   iMA_len_1 = iMA_short_base;
+   iMA_len_2 = (int)((double)1.3*(double)iMA_len_1);
+   iMA_len_3 = (int)((double)1.3*(double)iMA_len_2);
+   iMA_len_4 = (int)((double)1.3*(double)iMA_len_3);
+   iMA_len_5 = (int)((double)1.3*(double)iMA_len_4);
 //---
    return(INIT_SUCCEEDED);
   }
@@ -64,9 +76,10 @@ int OnCalculate(const int rates_total,
 //         limit++;
    for(int i=limit-1; i >= 0; i--)
    {
-      Buffer_sig[i]=(type_fuzzy) ? sig_fuzzy(i) : sig_digitised(i);
-      Buffer_state[i]=state;
-    }
+      Buffer_sig[i] = sig_digitised(i);
+      Buffer_state[i] = state;
+      Buffer_ima[i] = opt_iMA_short;
+   }
 
 //--- return value of prev_calculated for next call
       return(rates_total);
@@ -87,31 +100,28 @@ double sig_fuzzy(int bar)
 double sig_digitised(int bar)
 {  //returns the signal, =1,-1 or 0
    //and update the state
-   int opt_iMA_short;
-   opt_iMA_short = (int)iCustom(Symbol(), Period(),"my_ind/S4_opter/4opt_S4", 800, type_fuzzy, 5, 8, 12, 20, 50,use_ADX_confirm,
+   int opt_index;
+   opt_index = (int)iCustom(Symbol(), Period(),"my_ind/S4_opter/4opt_S4", 800, type_fuzzy,
+         iMA_len_1, iMA_len_2, iMA_len_3, iMA_len_4, iMA_len_5,use_ADX_confirm,
          ADX_period,ADX_level,use_RSI_enter,RSI_len, 0, bar);
-/*input bool type_fuzzy = False;
-input int iMA_short_len = 20;
-input bool use_ADX_confirm = False;
-input int ADX_period = 20;
-input int ADX_level = 20;
-input bool use_RSI_enter = False;
-input int RSI_len = 10;
-*/
-//4op pars:
-/*input int opt_len = 800;
-input bool type_fuzzy = False;
-input int iMA_len_0 =5;
-input int iMA_len_1 =8;
-input int iMA_len_2 =12;
-input int iMA_len_3 =20;
-input int iMA_len_4 =50;
-input bool use_ADX_confirm = False;
-input int ADX_period = 20;
-input int ADX_level = 20;
-input bool use_RSI_enter = False;
-input int RSI_len = 10;
-*/
+   switch(opt_index)
+   {
+      case 0:
+         opt_iMA_short = 1;
+         break;
+      case 1:  //none of iMA's are fruitful
+         opt_iMA_short = iMA_len_1;
+      case 2:
+         opt_iMA_short = iMA_len_2;
+      case 3:
+         opt_iMA_short = iMA_len_3;
+      case 4:
+         opt_iMA_short = iMA_len_4;
+      case 5:
+         opt_iMA_short = iMA_len_5;
+         break;
+   }
+   Comment("opt: ", iMA_len_4);
    double imaFast = iMA(Symbol(), Period(), opt_iMA_short, 0, MODE_LWMA, PRICE_OPEN, bar);
    double imaSlow = iMA(Symbol(), Period(), opt_iMA_short * iMA_fast_len_factor, 0, MODE_SMA, PRICE_OPEN, bar);
    double RSI0 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+1);
@@ -120,26 +130,25 @@ input int RSI_len = 10;
    double ADX = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MAIN, 0);
    double pDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_PLUSDI, 0);
    double nDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MINUSDI, 0);
-   Comment("ADX: ", ADX,"    +: ", pDI,"    -: ", nDI);
 
    switch(state)
    {
       case 0:  //no trend
-         if( (Open[bar]>imaFast) && (imaFast>imaSlow) )
+         if( (opt_iMA_short>1) && (Open[bar]>imaFast) && (imaFast>imaSlow) )
             state = 1;
-         else if( (Open[bar]<imaFast) && (imaFast<imaSlow) )
+         else if( (opt_iMA_short>1) &&  (Open[bar]<imaFast) && (imaFast<imaSlow) )
             state = -1;
          break;
 
       case 1:  //ima in order, wait for confirm
-         if( ! ((Open[bar]>imaFast) && (imaFast>imaSlow)) )
+         if( ! ( (opt_iMA_short>1) && (Open[bar]>imaFast) && (imaFast>imaSlow)) )
             state = 0;  //return t null state
          else
             if(confirm_bull(bar))
                state = 2;
          break;
       case 2:  //confirmed, wait for trade oppurtunity
-         if( ! ((Open[bar]>imaFast) && (imaFast>imaSlow)) )
+         if( ! ( (opt_iMA_short>1) && (Open[bar]>imaFast) && (imaFast>imaSlow)) )
             state = 0;  //return to null state
          else
             if( ! use_RSI_enter)
@@ -149,7 +158,7 @@ input int RSI_len = 10;
                   state = 3;
          break;
       case 3:  //in trade, wait for trade exit
-         if( ! ((Open[bar]>imaSlow) && (imaFast>imaSlow)) )
+         if( ! ( (opt_iMA_short>1) && (Open[bar]>imaSlow) && (imaFast>imaSlow)) )
             state = 0;  //end of trend
          if( use_RSI_enter)
             if( (RSI1>=70) && (RSI0<70) )
@@ -158,14 +167,14 @@ input int RSI_len = 10;
 
 
       case -1:  //ima in order, wait for confirm
-         if( ! ((Open[bar]<imaFast) && (imaFast<imaSlow)) )
+         if( ! ( (opt_iMA_short>1) && (Open[bar]<imaFast) && (imaFast<imaSlow)) )
             state = 0;  //return t null state
          else
             if(confirm_bear(bar))
                state = -2;
          break;
       case -2:  //confirmed, wait for trade oppurtunity
-         if( ! ((Open[bar]<imaFast) && (imaFast<imaSlow)) )
+         if( ! ( (opt_iMA_short>1) && (Open[bar]<imaFast) && (imaFast<imaSlow)) )
             state = 0;  //return t null state
          else
             if( ! use_RSI_enter)
@@ -175,7 +184,7 @@ input int RSI_len = 10;
                   state = -3;
          break;
       case -3:  //confirmed, wait for trade oppurtunity
-         if( ! ((Open[bar]<imaSlow) && (imaFast<imaSlow)) )
+         if( ! ( (opt_iMA_short>1) && (Open[bar]<imaSlow) && (imaFast<imaSlow)) )
             state = 0;  //end of trend
          if( use_RSI_enter)
             if( (RSI1<=30) && (RSI0>30) )
