@@ -20,7 +20,6 @@ int opt_iMA_short=1;
 //-----------------macros
 #define iMA_fast_len_factor 3
 //-----------------inputs
-input bool type_fuzzy = False;
 input int iMA_short_base =10;
 input bool use_ADX_confirm = False;
 input int ADX_period = 20;
@@ -85,23 +84,11 @@ int OnCalculate(const int rates_total,
       return(rates_total);
 }
 
-double sig_fuzzy(int bar)
-{
-/*   if(bar > limit-80)
-      return 0;
-   double imaFast = iMA(Symbol(), Period(), iMA_fast_len, 0, MODE_SMA, PRICE_OPEN, bar);
-   double imaSlow = iMA(Symbol(), Period(), iMA_len, 0, MODE_SMA, PRICE_OPEN, bar);
-
-   return 1000*(imaFast-imaSlow);
-*/
-   return 0;
-}
-
 double sig_digitised(int bar)
 {  //returns the signal, =1,-1 or 0
    //and update the state
    int opt_index;
-   opt_index = (int)iCustom(Symbol(), Period(),"my_ind/S4_opter/4opt_S4", 800, type_fuzzy,
+   opt_index = (int)iCustom(Symbol(), Period(),"my_ind/S4_opter/4opt_S4", 800, 
          iMA_len_1, iMA_len_2, iMA_len_3, iMA_len_4, iMA_len_5,use_ADX_confirm,
          ADX_period,ADX_level,use_RSI_enter,RSI_len, 0, bar);
    switch(opt_index)
@@ -111,12 +98,16 @@ double sig_digitised(int bar)
          break;
       case 1:  //none of iMA's are fruitful
          opt_iMA_short = iMA_len_1;
+         break;
       case 2:
          opt_iMA_short = iMA_len_2;
+         break;
       case 3:
          opt_iMA_short = iMA_len_3;
+         break;
       case 4:
          opt_iMA_short = iMA_len_4;
+         break;
       case 5:
          opt_iMA_short = iMA_len_5;
          break;

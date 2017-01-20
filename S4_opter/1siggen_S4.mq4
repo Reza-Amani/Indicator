@@ -17,7 +17,6 @@ int state=0;
 //-----------------macros
 #define iMA_fast_len_factor 3
 //-----------------inputs
-input bool type_fuzzy = False;
 input int iMA_short_len = 20;
 input bool use_ADX_confirm = False;
 input int ADX_period = 20;
@@ -64,7 +63,7 @@ int OnCalculate(const int rates_total,
 //         limit++;
    for(int i=limit-1; i >= 0; i--)
    {
-      Buffer_sig[i]=(type_fuzzy) ? sig_fuzzy(i) : sig_digitised(i);
+      Buffer_sig[i]= sig_digitised(i);
       Buffer_state[i]=state;
     }
 

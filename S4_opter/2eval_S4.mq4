@@ -24,7 +24,6 @@ datetime    _last_open_time;
 int limit;
 //-----------------inputs
 input int opt_len = 800;
-input bool type_fuzzy = False;
 input int iMA_short_len = 20;
 input bool use_ADX_confirm = False;
 input int ADX_period = 20;
@@ -95,7 +94,7 @@ int OnCalculate(const int rates_total,
 
 double ind_value_in_bar(int bar)
 {
-   double ind_sig = iCustom(Symbol(), Period(), "1siggen_S4", type_fuzzy, iMA_short_len,use_ADX_confirm,ADX_period,ADX_level,use_RSI_enter,RSI_len, 0, bar);
+   double ind_sig = iCustom(Symbol(), Period(), "1siggen_S4", iMA_short_len,use_ADX_confirm,ADX_period,ADX_level,use_RSI_enter,RSI_len, 0, bar);
 
    return 100 * ind_sig/1 *(Close[bar]-Close[bar+1])/Close[bar];
 }

@@ -17,7 +17,6 @@ int limit;
 int iMA_array[5];
 //-----------------inputs
 input int opt_len = 800;
-input bool type_fuzzy = False;
 input int iMA_len_0 =5;
 input int iMA_len_1 =8;
 input int iMA_len_2 =12;
@@ -80,7 +79,7 @@ int OnCalculate(const int rates_total,
    for(int i=limit-1; i >= 0; i--)
    {
       for(int j=0; j<5; j++)
-         eval[j]=iCustom(Symbol(), Period(), "2eval_S4", opt_len, type_fuzzy, iMA_array[j],
+         eval[j]=iCustom(Symbol(), Period(), "2eval_S4", opt_len, iMA_array[j],
             use_ADX_confirm,ADX_period,ADX_level,use_RSI_enter,RSI_len, 1, i);
 
       Buf_ima_max[i]=max_index(0,eval[0],eval[1],eval[2],eval[3],eval[4]);
