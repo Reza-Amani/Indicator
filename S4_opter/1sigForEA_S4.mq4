@@ -21,6 +21,7 @@ double iMA_filetered;
 int iMA_selected,opt_iMA_instantanuos;
 //-----------------macros
 #define iMA_fast_len_factor 3
+#define opt_len 400
 //-----------------inputs
 input int iMA_short_base =10;
 input bool use_ADX_confirm = False;
@@ -96,7 +97,7 @@ double sig_digitised(int bar)
 {  //returns the signal, =1,-1 or 0
    //and update the state
    int opt_index;
-   opt_index = (int)iCustom(Symbol(), Period(),"my_ind/S4_opter/4opt_S4", 800, 
+   opt_index = (int)iCustom(Symbol(), Period(),"my_ind/S4_opter/4opt_S4", opt_len, 
          iMA_len_1, iMA_len_2, iMA_len_3, iMA_len_4, iMA_len_5,use_ADX_confirm,
          ADX_period,ADX_level,use_RSI_enter,RSI_len, 0, bar);
    switch(opt_index)
