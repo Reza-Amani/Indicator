@@ -6,17 +6,19 @@
 #property copyright "Reza"
 #property strict
 #property indicator_separate_window
-#property indicator_buffers 3
-#property indicator_plots   3
+#property indicator_buffers 4
+#property indicator_plots   4
 //--- indicator buffers
 double         Buffer_sig[];
 double         Buffer_state[];
-double         Buffer_ima[];
+double         Buffer_ima_selected[];
+double         Buffer_ima_inst[];
 datetime    _last_open_time;
 int limit;
 int state=0;
 int iMA_len_1, iMA_len_2, iMA_len_3, iMA_len_4, iMA_len_5;
-int opt_iMA_short=1;
+double iMA_filetered;
+int iMA_selected,opt_iMA_instantanuos;
 //-----------------macros
 #define iMA_fast_len_factor 3
 //-----------------inputs
@@ -41,8 +43,12 @@ int OnInit()
    SetIndexLabel(1 ,"state");   
    
    SetIndexStyle(2, DRAW_LINE, STYLE_SOLID, 1, clrChocolate);
-   SetIndexBuffer(2,Buffer_ima);
-   SetIndexLabel(2 ,"ima short");   
+   SetIndexBuffer(2,Buffer_ima_selected);
+   SetIndexLabel(2 ,"ima selected");   
+
+   SetIndexStyle(3, DRAW_LINE, STYLE_SOLID, 1, clrBrown);
+   SetIndexBuffer(3,Buffer_ima_inst);
+   SetIndexLabel(3 ,"ima instantanous");   
    
    _last_open_time=0;
    limit = 0;
@@ -51,6 +57,7 @@ int OnInit()
    iMA_len_3 = (int)((double)1.3*(double)iMA_len_2);
    iMA_len_4 = (int)((double)1.3*(double)iMA_len_3);
    iMA_len_5 = (int)((double)1.3*(double)iMA_len_4);
+   iMA_filetered = iMA_short_base*2;
 //---
    return(INIT_SUCCEEDED);
   }
@@ -77,7 +84,8 @@ int OnCalculate(const int rates_total,
    {
       Buffer_sig[i] = sig_digitised(i);
       Buffer_state[i] = state;
-      Buffer_ima[i] = opt_iMA_short;
+      Buffer_ima_selected[i] = iMA_selected;
+      Buffer_ima_inst[i] = opt_iMA_instantanuos;
    }
 
 //--- return value of prev_calculated for next call
@@ -94,27 +102,37 @@ double sig_digitised(int bar)
    switch(opt_index)
    {
       case 0:
-         opt_iMA_short = 1;
+         opt_iMA_instantanuos = 1;
          break;
       case 1:  //none of iMA's are fruitful
-         opt_iMA_short = iMA_len_1;
+         opt_iMA_instantanuos = iMA_len_1;
          break;
       case 2:
-         opt_iMA_short = iMA_len_2;
+         opt_iMA_instantanuos = iMA_len_2;
          break;
       case 3:
-         opt_iMA_short = iMA_len_3;
+         opt_iMA_instantanuos = iMA_len_3;
          break;
       case 4:
-         opt_iMA_short = iMA_len_4;
+         opt_iMA_instantanuos = iMA_len_4;
          break;
       case 5:
-         opt_iMA_short = iMA_len_5;
+         opt_iMA_instantanuos = iMA_len_5;
          break;
    }
-   Comment("opt: ", iMA_len_4);
-   double imaFast = iMA(Symbol(), Period(), opt_iMA_short, 0, MODE_LWMA, PRICE_OPEN, bar);
-   double imaSlow = iMA(Symbol(), Period(), opt_iMA_short * iMA_fast_len_factor, 0, MODE_SMA, PRICE_OPEN, bar);
+   if(opt_iMA_instantanuos == 1)  //no profitable iMA has been detected
+      iMA_selected = 1;
+   else
+   {
+      if(iMA_filetered < opt_iMA_instantanuos)
+         iMA_filetered += 0.2;
+      if(iMA_filetered > opt_iMA_instantanuos)
+         iMA_filetered -= 0.2;
+      iMA_selected = (int)iMA_filetered;
+   }
+//   Comment("opt: ", iMA_len_4);
+   double imaFast = iMA(Symbol(), Period(), iMA_selected, 0, MODE_LWMA, PRICE_OPEN, bar);
+   double imaSlow = iMA(Symbol(), Period(), iMA_selected * iMA_fast_len_factor, 0, MODE_SMA, PRICE_OPEN, bar);
    double RSI0 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+1);
    double RSI1 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+2);
 
@@ -125,21 +143,21 @@ double sig_digitised(int bar)
    switch(state)
    {
       case 0:  //no trend
-         if( (opt_iMA_short>1) && (Open[bar]>imaFast) && (imaFast>imaSlow) )
+         if( (iMA_selected>1) && (Open[bar]>imaFast) && (imaFast>imaSlow) )
             state = 1;
-         else if( (opt_iMA_short>1) &&  (Open[bar]<imaFast) && (imaFast<imaSlow) )
+         else if( (iMA_selected>1) &&  (Open[bar]<imaFast) && (imaFast<imaSlow) )
             state = -1;
          break;
 
       case 1:  //ima in order, wait for confirm
-         if( ! ( (opt_iMA_short>1) && (Open[bar]>imaFast) && (imaFast>imaSlow)) )
+         if( ! ( (iMA_selected>1) && (Open[bar]>imaFast) && (imaFast>imaSlow)) )
             state = 0;  //return t null state
          else
             if(confirm_bull(bar))
                state = 2;
          break;
       case 2:  //confirmed, wait for trade oppurtunity
-         if( ! ( (opt_iMA_short>1) && (Open[bar]>imaFast) && (imaFast>imaSlow)) )
+         if( ! ( (iMA_selected>1) && (Open[bar]>imaFast) && (imaFast>imaSlow)) )
             state = 0;  //return to null state
          else
             if( ! use_RSI_enter)
@@ -149,7 +167,7 @@ double sig_digitised(int bar)
                   state = 3;
          break;
       case 3:  //in trade, wait for trade exit
-         if( ! ( (opt_iMA_short>1) && (Open[bar]>imaSlow) && (imaFast>imaSlow)) )
+         if( ! ( (iMA_selected>1) && (Open[bar]>imaSlow) && (imaFast>imaSlow)) )
             state = 0;  //end of trend
          if( use_RSI_enter)
             if( (RSI1>=70) && (RSI0<70) )
@@ -158,14 +176,14 @@ double sig_digitised(int bar)
 
 
       case -1:  //ima in order, wait for confirm
-         if( ! ( (opt_iMA_short>1) && (Open[bar]<imaFast) && (imaFast<imaSlow)) )
+         if( ! ( (iMA_selected>1) && (Open[bar]<imaFast) && (imaFast<imaSlow)) )
             state = 0;  //return t null state
          else
             if(confirm_bear(bar))
                state = -2;
          break;
       case -2:  //confirmed, wait for trade oppurtunity
-         if( ! ( (opt_iMA_short>1) && (Open[bar]<imaFast) && (imaFast<imaSlow)) )
+         if( ! ( (iMA_selected>1) && (Open[bar]<imaFast) && (imaFast<imaSlow)) )
             state = 0;  //return t null state
          else
             if( ! use_RSI_enter)
@@ -175,7 +193,7 @@ double sig_digitised(int bar)
                   state = -3;
          break;
       case -3:  //confirmed, wait for trade oppurtunity
-         if( ! ( (opt_iMA_short>1) && (Open[bar]<imaSlow) && (imaFast<imaSlow)) )
+         if( ! ( (iMA_selected>1) && (Open[bar]<imaSlow) && (imaFast<imaSlow)) )
             state = 0;  //end of trend
          if( use_RSI_enter)
             if( (RSI1<=30) && (RSI0>30) )

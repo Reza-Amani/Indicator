@@ -94,7 +94,7 @@ double sig_digitised(int bar)
    double ADX = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MAIN, 0);
    double pDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_PLUSDI, 0);
    double nDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MINUSDI, 0);
-   Comment("ADX: ", ADX,"    +: ", pDI,"    -: ", nDI);
+//   Comment("ADX: ", ADX,"    +: ", pDI,"    -: ", nDI);
 
    switch(state)
    {
