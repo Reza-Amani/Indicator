@@ -17,12 +17,11 @@ int state=0;
 //-----------------macros
 #define iMA_fast_len_factor 3
 //-----------------inputs
-input bool type_fuzzy = False;
 input int iMA_short_len = 20;
-input bool use_ROC_confirm = True;
-input int ROC_period = 13;
-input int ROC_MA_per = 10;
-input bool use_RSI_enter = True;
+input bool use_ADX_confirm = False;
+input int ADX_period = 20;
+input int ADX_level = 20;
+input bool use_RSI_enter = False;
 input int RSI_len = 10;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
@@ -64,7 +63,7 @@ int OnCalculate(const int rates_total,
 //         limit++;
    for(int i=limit-1; i >= 0; i--)
    {
-      Buffer_sig[i]=(type_fuzzy) ? sig_fuzzy(i) : sig_digitised(i);
+      Buffer_sig[i]= sig_digitised(i);
       Buffer_state[i]=state;
     }
 
@@ -91,8 +90,11 @@ double sig_digitised(int bar)
    double imaSlow = iMA(Symbol(), Period(), iMA_short_len * iMA_fast_len_factor, 0, MODE_SMA, PRICE_OPEN, bar);
    double RSI0 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+1);
    double RSI1 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+2);
-   
-   Comment("ind: 1: ", RSI1,"   0: ", RSI0);
+
+   double ADX = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MAIN, 0);
+   double pDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_PLUSDI, 0);
+   double nDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MINUSDI, 0);
+//   Comment("ADX: ", ADX,"    +: ", pDI,"    -: ", nDI);
 
    switch(state)
    {
@@ -121,10 +123,11 @@ double sig_digitised(int bar)
                   state = 3;
          break;
       case 3:  //in trade, wait for trade exit
-         if( ! ((Open[bar]>imaFast) && (imaFast>imaSlow)) )
-            state = 1;  //return to wait-for-confirm state
-         if( (RSI1>=70) && (RSI0<70) )
-            state = 0;  //return to null state if RSI drop to below 70   
+         if( ! ((Open[bar]>imaSlow) && (imaFast>imaSlow)) )
+            state = 0;  //end of trend
+         if( use_RSI_enter)
+            if( (RSI1>=70) && (RSI0<70) )
+               state = 2;  //make profit and return to confirmed state if RSI drop to below 70   
          break;
 
 
@@ -146,10 +149,11 @@ double sig_digitised(int bar)
                   state = -3;
          break;
       case -3:  //confirmed, wait for trade oppurtunity
-         if( ! (imaFast<imaSlow) )
-            state = -1;  //return to wait-for-confirm state
-         if( (RSI1<=30) && (RSI0>30) )
-            state = 0;  //return to null state if RSI rises to above 30   
+         if( ! ((Open[bar]<imaSlow) && (imaFast<imaSlow)) )
+            state = 0;  //end of trend
+         if( use_RSI_enter)
+            if( (RSI1<=30) && (RSI0>30) )
+               state = -2; //make profit and return to confirmed state if RSI rises to above 70   
          break;
    }
    if(state>=3)
@@ -163,24 +167,26 @@ double sig_digitised(int bar)
 }//+------------------------------------------------------------------+
 bool confirm_bull(int bar)
 {
-   if( ! use_ROC_confirm)
+   if( ! use_ADX_confirm)
       return true;
-   double ROCFast = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_OPEN,1 ,PRICE_OPEN,MODE_SMA,ROC_period,   1    ,ROC_MA_per,0, bar);
-                                                                  // inp,PRICE_CLOSE,MA,MAprice    ,MAmode,ROC per,   ROC meth,MAROCper
-   double ROCSlow = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_OPEN,1 ,PRICE_OPEN,MODE_SMA,ROC_period,   1    ,ROC_MA_per,1, bar);
-   if(ROCFast>ROCSlow)
+   double ADX = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MAIN, bar);
+   double pDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_PLUSDI, bar);
+   double nDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MINUSDI, bar);
+
+   if( (pDI>nDI) && (ADX>ADX_level) )
       return true;
    else
       return false;
 }
 bool confirm_bear(int bar)
 {
-   if( ! use_ROC_confirm)
+   if( ! use_ADX_confirm)
       return true;
-   double ROCFast = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_OPEN,1 ,PRICE_OPEN,MODE_SMA,ROC_period,   1    ,ROC_MA_per,0, bar);
-                                                                   // inp,PRICE_CLOSE,MA,MAprice    ,MAmode,ROC per,   ROC meth,MAROCper
-   double ROCSlow = iCustom(Symbol(), Period(), "FT ROC Histogram MT4", 0,PRICE_OPEN,1 ,PRICE_OPEN,MODE_SMA,ROC_period,   1    ,ROC_MA_per,1, bar);
-   if(ROCFast<ROCSlow)
+   double ADX = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MAIN, bar);
+   double pDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_PLUSDI, bar);
+   double nDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MINUSDI, bar);
+
+   if( (pDI<nDI) && (ADX>ADX_level) )
       return true;
    else
       return false;
