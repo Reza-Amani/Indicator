@@ -86,8 +86,8 @@ double sig_fuzzy(int bar)
 double sig_digitised(int bar)
 {  //returns the signal, =1,-1 or 0
    //and update the state
-   double imaFast = iMA(Symbol(), Period(), iMA_short_len, 0, MODE_LWMA, PRICE_OPEN, bar);
-   double imaSlow = iMA(Symbol(), Period(), iMA_short_len * iMA_fast_len_factor, 0, MODE_SMA, PRICE_OPEN, bar);
+   double imaFast = iMA(Symbol(), Period(), iMA_short_len, 0, MODE_EMA, PRICE_OPEN, bar);
+   double imaSlow = iMA(Symbol(), Period(), iMA_short_len * iMA_fast_len_factor, 0, MODE_EMA, PRICE_OPEN, bar);
    double RSI0 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+1);
    double RSI1 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+2);
 
