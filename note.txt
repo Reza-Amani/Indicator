@@ -4,8 +4,9 @@ identifying trend by MACD/SMA, then confirm by ADX>25 and +DI>-DI, then use RSI 
 
 opter doesn't work
 1. deciding best ima based on internet, optimising trade manager, sl/tp
-	longer ima's, or MACD. in up trend RSI doesn't go back to 30 typ. so, if below 50 then crosses above 50: buy
-2. long term: another way of finding optimum ima
+2. ind only for trend + confirmation. EA for entry/exit ; RSI
+3. in up trend RSI doesn't go back to 30 typ. so, if below 50 then crosses above 50: buy
+4. long term: another way of finding optimum ima
 
 
 Note: shorter ima (10 e.g.) for shorter time frames like 15min, longer(100) for daily
