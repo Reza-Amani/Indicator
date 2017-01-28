@@ -15,7 +15,7 @@ int limit;
 //-----------------macros
 //-----------------inputs
 input int MACD_fast_len = 13;
-input bool use_ADX_confirm = False;
+input bool use_ADX_confirm = True;
 input int ADX_period = 20;
 input int ADX_level = 22;
 //+------------------------------------------------------------------+
@@ -50,8 +50,8 @@ int OnCalculate(const int rates_total,
 //---
    _last_open_time = time[0];
    limit = rates_total - prev_calculated;
-//      if(prev_calculated>0)
-//         limit++;
+      if(prev_calculated>0)
+         limit++;
    for(int i=limit-1; i >= 0; i--)
       Buffer[i]= calculate(i);
 
@@ -88,29 +88,3 @@ int calculate(int bar)
 
                                                          
 }//+------------------------------------------------------------------+
-bool confirm_bull(int bar)
-{
-   if( ! use_ADX_confirm)
-      return true;
-   double ADX = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MAIN, bar);
-   double pDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_PLUSDI, bar);
-   double nDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MINUSDI, bar);
-
-   if( (pDI>nDI) && (ADX>ADX_level) )
-      return true;
-   else
-      return false;
-}
-bool confirm_bear(int bar)
-{
-   if( ! use_ADX_confirm)
-      return true;
-   double ADX = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MAIN, bar);
-   double pDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_PLUSDI, bar);
-   double nDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MINUSDI, bar);
-
-   if( (pDI<nDI) && (ADX>ADX_level) )
-      return true;
-   else
-      return false;
-}
