@@ -59,16 +59,16 @@ int OnCalculate(const int rates_total,
       return(rates_total);
 }
 
-double calculate(int bar)
+int calculate(int bar)
 {  
    double MACD = iMACD(Symbol(), Period(), MACD_fast_len, 2 * MACD_fast_len, 9, PRICE_OPEN, MODE_MAIN, bar);
    double MACD_sig_ima = iMACD(Symbol(), Period(), MACD_fast_len, 2 * MACD_fast_len, 9, PRICE_OPEN, MODE_SIGNAL, bar);
 //   double RSI0 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+1);
 //   double RSI1 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+2);
 
-   double ADX = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MAIN, 0);
-   double pDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_PLUSDI, 0);
-   double nDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MINUSDI, 0);
+   double ADX = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MAIN, bar);
+   double pDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_PLUSDI, bar);
+   double nDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MINUSDI, bar);
 //   Comment("ADX: ", ADX,"    +: ", pDI,"    -: ", nDI);
 
    int trend,temp_course,temp_fine;
@@ -76,6 +76,14 @@ double calculate(int bar)
    temp_fine = (MACD>MACD_sig_ima) ? +1 : -1;
    trend = temp_course+temp_fine;
       //so far +-4 for trend, +-2 for uncertain trend
+   if( use_ADX_confirm)
+   {
+      temp_fine = (pDI>nDI) ? +1 : -1;
+      temp_course = (ADX>ADX_level) ? 2 : 1;
+      trend += temp_course * temp_fine;
+   }
+   else
+      trend *= 2;
    return trend;
 
                                                          
