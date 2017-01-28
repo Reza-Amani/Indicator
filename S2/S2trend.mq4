@@ -61,8 +61,8 @@ int OnCalculate(const int rates_total,
 
 double calculate(int bar)
 {  
-   double MACD = iMACD(Symbol(), Period(), MACD_fast_len, 2 * MACD_fast_len, 9, PRICE_OPEN, 0, bar);
-   double MACD_sig_ima = iMACD(Symbol(), Period(), MACD_fast_len, 2 * MACD_fast_len, 9, PRICE_OPEN, 1, bar);
+   double MACD = iMACD(Symbol(), Period(), MACD_fast_len, 2 * MACD_fast_len, 9, PRICE_OPEN, MODE_MAIN, bar);
+   double MACD_sig_ima = iMACD(Symbol(), Period(), MACD_fast_len, 2 * MACD_fast_len, 9, PRICE_OPEN, MODE_SIGNAL, bar);
 //   double RSI0 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+1);
 //   double RSI1 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+2);
 
@@ -75,6 +75,7 @@ double calculate(int bar)
    temp_course = (MACD>0) ? +3 : -3;
    temp_fine = (MACD>MACD_sig_ima) ? +1 : -1;
    trend = temp_course+temp_fine;
+      //so far +-4 for trend, +-2 for uncertain trend
    return trend;
 
                                                          
