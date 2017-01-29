@@ -50,8 +50,8 @@ int OnCalculate(const int rates_total,
 //---
    _last_open_time = time[0];
    limit = rates_total - prev_calculated;
-      if(prev_calculated>0)
-         limit++;
+//      if(prev_calculated>0)
+//         limit++;
    for(int i=limit-1; i >= 0; i--)
       Buffer[i]= calculate(i);
 
@@ -61,8 +61,8 @@ int OnCalculate(const int rates_total,
 
 int calculate(int bar)
 {  
-   double MACD = iMACD(Symbol(), Period(), MACD_fast_len, 2 * MACD_fast_len, 9, PRICE_OPEN, MODE_MAIN, bar);
-   double MACD_sig_ima = iMACD(Symbol(), Period(), MACD_fast_len, 2 * MACD_fast_len, 9, PRICE_OPEN, MODE_SIGNAL, bar);
+   double MACD = iCustom(Symbol(), Period(),"my_ind/MACDonOPEN", MACD_fast_len, 2 * MACD_fast_len, 9, MODE_MAIN, bar);
+   double MACD_sig_ima = iCustom(Symbol(), Period(),"my_ind/MACDonOPEN", MACD_fast_len, 2 * MACD_fast_len, 9, MODE_SIGNAL, bar);
 //   double RSI0 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+1);
 //   double RSI1 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+2);
 
