@@ -48,11 +48,14 @@ int OnCalculate(const int rates_total,
                 const int &spread[])
   {
 //---
+   if(rates_total<=10)
+      return(0);
    _last_open_time = time[0];
    limit = rates_total - prev_calculated;
 //      if(prev_calculated>0)
 //         limit++;
-   for(int i=limit-1; i >= 0; i--)
+   for(int i=0; i<limit; i++)
+//   for(int i=limit-1; i >= 0; i--)
       Buffer[i]= calculate(i);
 
 //--- return value of prev_calculated for next call
