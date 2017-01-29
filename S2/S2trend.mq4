@@ -52,10 +52,10 @@ int OnCalculate(const int rates_total,
       return(0);
    _last_open_time = time[0];
    limit = rates_total - prev_calculated;
-//      if(prev_calculated>0)
-//         limit++;
-   for(int i=0; i<limit; i++)
-//   for(int i=limit-1; i >= 0; i--)
+   if(prev_calculated>0)
+      limit++;
+//   for(int i=0; i<limit; i++)
+   for(int i=limit-1; i >= 0; i--)
       Buffer[i]= calculate(i);
 
 //--- return value of prev_calculated for next call
@@ -64,14 +64,14 @@ int OnCalculate(const int rates_total,
 
 int calculate(int bar)
 {  
-   double MACD = iCustom(Symbol(), Period(),"my_ind/MACDonOPEN", MACD_fast_len, 2 * MACD_fast_len, 9, MODE_MAIN, bar);
-   double MACD_sig_ima = iCustom(Symbol(), Period(),"my_ind/MACDonOPEN", MACD_fast_len, 2 * MACD_fast_len, 9, MODE_SIGNAL, bar);
+   double MACD = iMACD(Symbol(), Period(), MACD_fast_len, 2 * MACD_fast_len, 9, PRICE_CLOSE, MODE_MAIN, bar+1);
+   double MACD_sig_ima = iMACD(Symbol(), Period(), MACD_fast_len, 2 * MACD_fast_len, 9, PRICE_CLOSE, MODE_SIGNAL, bar+1);
 //   double RSI0 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+1);
 //   double RSI1 = iRSI(Symbol(), Period(), RSI_len,PRICE_CLOSE,bar+2);
 
-   double ADX = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MAIN, bar);
-   double pDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_PLUSDI, bar);
-   double nDI = iADX(Symbol(), Period(), ADX_period, PRICE_OPEN, MODE_MINUSDI, bar);
+   double ADX = iADX(Symbol(), Period(), ADX_period, PRICE_CLOSE, MODE_MAIN, bar+1);
+   double pDI = iADX(Symbol(), Period(), ADX_period, PRICE_CLOSE, MODE_PLUSDI, bar+1);
+   double nDI = iADX(Symbol(), Period(), ADX_period, PRICE_CLOSE, MODE_MINUSDI, bar+1);
 //   Comment("ADX: ", ADX,"    +: ", pDI,"    -: ", nDI);
 
    int trend,temp_course,temp_fine;
