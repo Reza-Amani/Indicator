@@ -6,6 +6,7 @@ opter doesn't work
 1. deciding best ima based on internet, optimising trade manager, sl/tp
 2. ind only for trend + confirmation. EA for entry/exit ; RSI
 3. in up trend RSI doesn't go back to 30 typ. so, if below 50 then crosses above 50: buy
+4. IMPORTANT: Mid term: Dynamic Momentum Index or other Chande ideas for dynamic size indicators
 4. long term: another way of finding optimum ima
 
 
