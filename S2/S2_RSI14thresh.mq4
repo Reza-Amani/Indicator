@@ -25,14 +25,14 @@ input int Thr_trend4 = 60;
 input int Thr_trend3 = 65;
 input int Thr_trend2 = 70;
 input int Thr_trend1 = 75;
-input int Thr_trend0 = 90;
+input int Thr_trend0 = 105;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
 int OnInit()
   {
 //--- indicator buffers mapping
-   SetIndexStyle(0, DRAW_HISTOGRAM, STYLE_DASH, 1, clrBrown);
+   SetIndexStyle(0, DRAW_LINE, STYLE_DASH, 1, clrYellow);
    SetIndexBuffer(0,Buffer_RSI14Thresh);
    SetIndexLabel(0 ,"RSI14 threshold");   
    
