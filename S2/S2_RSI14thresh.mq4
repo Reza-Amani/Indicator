@@ -8,6 +8,10 @@
 #property indicator_separate_window
 #property indicator_buffers 1
 #property indicator_plots   1
+#property indicator_minimum    0
+#property indicator_maximum    100
+#property indicator_level1     50
+
 //--- indicator buffers
 double         Buffer_RSI14Thresh[];
 datetime    _last_open_time;
