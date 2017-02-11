@@ -29,7 +29,8 @@ input int Thr_trend4 = 60;
 input int Thr_trend3 = 65;
 input int Thr_trend2 = 70;
 input int Thr_trend1 = 75;
-input int Thr_trend0 = 105;
+
+int Thr_trend0 = EMPTY_VALUE;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
