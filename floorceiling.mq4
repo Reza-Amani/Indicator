@@ -6,11 +6,13 @@
 #property copyright "Reza"
 #property strict
 #property indicator_chart_window
-#property indicator_buffers 2
-#property indicator_plots   2
+#property indicator_buffers 4
+#property indicator_plots   4
 //--- indicator buffers
-double         Buffer_ceiling[];
-double         Buffer_floor[];
+double         Buffer_ceiling_high[];
+double         Buffer_ceiling_med[];
+double         Buffer_floor_med[];
+double         Buffer_floor_low[];
 datetime    _last_open_time;
 int limit;
 //-----------------macros
@@ -22,12 +24,18 @@ int limit;
 int OnInit()
   {
 //--- indicator buffers mapping
-   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrRosyBrown);
-   SetIndexBuffer(0,Buffer_ceiling);
-   SetIndexLabel(0 ,"ceiling");   
-   SetIndexStyle(1, DRAW_LINE, STYLE_SOLID, 1, clrBrown);
-   SetIndexBuffer(1,Buffer_floor);
-   SetIndexLabel(1 ,"floor");   
+   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrDarkGray);
+   SetIndexBuffer(0,Buffer_ceiling_high);
+   SetIndexLabel(0 ,"ceiling high");   
+   SetIndexStyle(1, DRAW_LINE, STYLE_SOLID, 1, clrGray);
+   SetIndexBuffer(1,Buffer_ceiling_med);
+   SetIndexLabel(1 ,"ceiling");   
+   SetIndexStyle(2, DRAW_LINE, STYLE_SOLID, 1, clrBlue);
+   SetIndexBuffer(2,Buffer_floor_med);
+   SetIndexLabel(2 ,"floor");   
+   SetIndexStyle(3, DRAW_LINE, STYLE_SOLID, 1, clrDarkBlue);
+   SetIndexBuffer(3,Buffer_floor_low);
+   SetIndexLabel(3 ,"floor low");   
    
    _last_open_time=0;
    limit = 0;
@@ -59,8 +67,11 @@ int OnCalculate(const int rates_total,
    for(int i=limit-4; i >= 0; i--)
    {
       double volatility = max(High[i+1],High[i+2],High[i+3]) - min(Low[i+1],Low[i+2],Low[i+3]); 
-      Buffer_ceiling[i]= (High[i+1]+Low[i+1])/2+volatility/2;
-      Buffer_floor[i]= (High[i+1]+Low[i+1])/2-volatility/2;
+      double prev_mid = (High[i+1]+Low[i+1])/2;
+      Buffer_ceiling_high[i]= High[i+1]+volatility/2;
+      Buffer_ceiling_med[i]= prev_mid+volatility/2;
+      Buffer_floor_med[i]= prev_mid-volatility/2;
+      Buffer_floor_low[i]= Low[i+1]-volatility/2;
    }
 
 //--- return value of prev_calculated for next call
