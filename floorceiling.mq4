@@ -13,8 +13,6 @@ double         Buffer_ceiling_high[];
 double         Buffer_ceiling_med[];
 double         Buffer_floor_med[];
 double         Buffer_floor_low[];
-datetime    _last_open_time;
-//int limit;
 //-----------------macros
 //-----------------inputs
 //input int MACD_fast_len = 35;
@@ -37,8 +35,6 @@ int OnInit()
    SetIndexBuffer(3,Buffer_floor_low);
    SetIndexLabel(3 ,"floor low");   
    
-   _last_open_time=0;
-//   limit = 0;
 //---
    return(INIT_SUCCEEDED);
   }
@@ -80,25 +76,7 @@ int OnCalculate(const int rates_total,
       limit++;
      } 
    //--- the main calculation loop
-   for (int i=limit; i>0; i--)
-   {
-      Buffer_ceiling_high[i]= High[i+1];
-      Buffer_ceiling_med[i]= High[i+1];
-      Buffer_floor_med[i]=  Low[i+1];
-      Buffer_floor_low[i]= Low[i+1];
-   }
-
-
-
-/*
-   if(rates_total<=0)
-      return(0);
-   _last_open_time = time[0];
-   limit = rates_total - prev_calculated;
-   if(prev_calculated>0)
-      limit++;
-//   for(int i=0; i<limit; i++)
-   for(int i=limit-4; i >= 0; i--)
+   for (int i=limit; i>=0; i--)
    {
       double volatility = max(High[i+1],High[i+2],High[i+3]) - min(Low[i+1],Low[i+2],Low[i+3]); 
       double prev_mid = (High[i+1]+Low[i+1])/2;
@@ -107,9 +85,9 @@ int OnCalculate(const int rates_total,
       Buffer_floor_med[i]= prev_mid-volatility/2;
       Buffer_floor_low[i]= Low[i+1]-volatility/2;
    }
-IndicatorCounted
+
 //--- return value of prev_calculated for next call
-*/      return(rates_total);
+   return(rates_total);
 }
 
 //+------------------------------------------------------------------+
