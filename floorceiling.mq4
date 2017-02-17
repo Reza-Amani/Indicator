@@ -14,7 +14,7 @@ double         Buffer_ceiling_med[];
 double         Buffer_floor_med[];
 double         Buffer_floor_low[];
 datetime    _last_open_time;
-int limit;
+//int limit;
 //-----------------macros
 //-----------------inputs
 //input int MACD_fast_len = 35;
@@ -38,7 +38,7 @@ int OnInit()
    SetIndexLabel(3 ,"floor low");   
    
    _last_open_time=0;
-   limit = 0;
+//   limit = 0;
 //---
    return(INIT_SUCCEEDED);
   }
@@ -56,7 +56,41 @@ int OnCalculate(const int rates_total,
                 const long &volume[],
                 const int &spread[])
   {
-//---
+   if (Bars<10) // if less bars are available on a chart (for example on MN timeframe)    
+     return(-1); // stop calculation and exit
+
+   //--- the number of bars that have not changed since the last indicator call
+   int counted_bars=IndicatorCounted();
+   //--- exit if an error has occurred
+   if(counted_bars<0) return(-1);
+      
+   //--- position of the bar from which calculation in the loop starts
+   int limit=Bars-counted_bars;
+
+   //--- if counted_bars=0, reduce the starting position in the loop by 1,   
+   if(counted_bars==0) 
+     {
+      limit--;  // to avoid the array out of range problem when counted_bars==0
+      //--- we use a shift of 10 bars back in history, so add this shift during the first calculation
+      limit-=10;
+     }
+   else //--- the indicator has been already calculated, counted_bars>0
+     {     
+      //--- for repeated calls increase limit by 1 to update the indicator values for the last bar
+      limit++;
+     } 
+   //--- the main calculation loop
+   for (int i=limit; i>0; i--)
+   {
+      Buffer_ceiling_high[i]= High[i+1];
+      Buffer_ceiling_med[i]= High[i+1];
+      Buffer_floor_med[i]=  Low[i+1];
+      Buffer_floor_low[i]= Low[i+1];
+   }
+
+
+
+/*
    if(rates_total<=0)
       return(0);
    _last_open_time = time[0];
@@ -73,9 +107,9 @@ int OnCalculate(const int rates_total,
       Buffer_floor_med[i]= prev_mid-volatility/2;
       Buffer_floor_low[i]= Low[i+1]-volatility/2;
    }
-
+IndicatorCounted
 //--- return value of prev_calculated for next call
-      return(rates_total);
+*/      return(rates_total);
 }
 
 //+------------------------------------------------------------------+
