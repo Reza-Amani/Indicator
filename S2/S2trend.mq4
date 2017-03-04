@@ -6,6 +6,8 @@
 #property copyright "Reza"
 #property strict
 #property indicator_separate_window
+#property indicator_minimum    -6
+#property indicator_maximum    6
 #property indicator_buffers 1
 #property indicator_plots   1
 //--- indicator buffers
