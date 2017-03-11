@@ -2,7 +2,7 @@
 //only works on history, not new bars
 #property copyright "Reza"
 #property strict
-#property indicator_chart_window
+#property indicator_separate_window
 #property indicator_buffers 1
 #property indicator_plots   1
 #property indicator_minimum    -1
@@ -67,20 +67,15 @@ int OnCalculate(const int rates_total,
    //--- the main calculation loop
    for (int i=limit; i>=0; i--)
    {
-      Buff
-      double volatility = max(High[i+1],High[i+2],High[i+3]) - min(Low[i+1],Low[i+2],Low[i+3]); 
-      double prev_mid = (High[i+1]+Low[i+1])/2;
-      Buffer_ceiling_high[i]= High[i+1]+volatility/2;
-      Buffer_ceiling_med[i]= prev_mid+volatility/2;
-      Buffer_floor_med[i]= prev_mid-volatility/2;
-      Buffer_floor_low[i]= Low[i+1]-volatility/2;
+      Buffer_correlation[i] = correlation(compare_point,i,compare_len);
    }
 
 //--- return value of prev_calculated for next call
    return(rates_total);
 }
 double correlation(int pattern1, int pattern2, int len)
-{  //pattern1&2 are the end index of 2 arrays
+{  //pattern1&2 are the end indexes of 2 arrays
+   //sigma(x-avgx)(y-avgy)/sqrt(sigma(x-avgx)2*sigma(y-avgy)2)
    double avg1=0,avg2=0;
    int i;
    for(i=0; i<len; i++)
@@ -91,6 +86,20 @@ double correlation(int pattern1, int pattern2, int len)
    avg1 /= len;
    avg2 /= len;
    
+   double x_xby_yb=0,x_xb2=0,y_yb2=0;
+   double x = Close[i+pattern1], y = Close[i+pattern2];
+   for(i=0; i<len; i++)
+   {
+      x_xby_yb += (x-avg1)*(y-avg2);
+      x_xb2 += (x-avg1)*(x-avg1);
+      y_yb2 += (y-avg2)*(y-avg2);
+   }
+   
+   if(x_xb2 * x_xb2 == 0)
+      return 0;
+      
+   return x_xby_yb/MathSqrt(x_xb2 * y_yb2);
+      
 }
 //general funcs
 //+------------------------------------------------------------------+
