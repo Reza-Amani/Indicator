@@ -3,16 +3,17 @@
 #property copyright "Reza"
 #property strict
 #property indicator_separate_window
-#property indicator_buffers 1
+#property indicator_buffers 2
 #property indicator_plots   1
 #property indicator_minimum    -100
 #property indicator_maximum    100
 
 //--- indicator buffers
 double         Buffer_correlation[];
+double         Buffer_bar_no[];
 //-----------------macros
-#define compare_point 20
-#define compare_len 100
+#define compare_point 2802
+#define compare_len 40
 //-----------------inputs
 //input int MACD_fast_len = 35;
 //+------------------------------------------------------------------+
@@ -24,6 +25,9 @@ int OnInit()
    SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrBlue);
    SetIndexBuffer(0,Buffer_correlation);
    SetIndexLabel(0 ,"correlation");   
+//   SetIndexStyle(1, DRAW_LINE, STYLE_SOLID, 1, clrBlue);
+   SetIndexBuffer(1,Buffer_bar_no);
+   SetIndexLabel(1 ,"bar no");   
 //---
    return(INIT_SUCCEEDED);
   }
@@ -68,6 +72,7 @@ int OnCalculate(const int rates_total,
    for (int i=limit; i>=0; i--)
    {
       Buffer_correlation[i] = correlation(compare_point,i,compare_len);
+      Buffer_bar_no[i]=i;
    }
 
 //--- return value of prev_calculated for next call
