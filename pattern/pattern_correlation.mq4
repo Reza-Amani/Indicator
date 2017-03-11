@@ -5,8 +5,8 @@
 #property indicator_separate_window
 #property indicator_buffers 1
 #property indicator_plots   1
-#property indicator_minimum    -1
-#property indicator_maximum    1
+#property indicator_minimum    -100
+#property indicator_maximum    100
 
 //--- indicator buffers
 double         Buffer_correlation[];
@@ -76,10 +76,13 @@ int OnCalculate(const int rates_total,
 double correlation(int pattern1, int pattern2, int len)
 {  //pattern1&2 are the end indexes of 2 arrays
    //sigma(x-avgx)(y-avgy)/sqrt(sigma(x-avgx)2*sigma(y-avgy)2)
+   double x,y;
    double avg1=0,avg2=0;
    int i;
    for(i=0; i<len; i++)
    {
+      x = Close[i+pattern1];
+      y = Close[i+pattern2];
       avg1 += Close[i+pattern1];
       avg2 += Close[i+pattern2];
    }
@@ -87,9 +90,10 @@ double correlation(int pattern1, int pattern2, int len)
    avg2 /= len;
    
    double x_xby_yb=0,x_xb2=0,y_yb2=0;
-   double x = Close[i+pattern1], y = Close[i+pattern2];
    for(i=0; i<len; i++)
    {
+      x = Close[i+pattern1];
+      y = Close[i+pattern2];
       x_xby_yb += (x-avg1)*(y-avg2);
       x_xb2 += (x-avg1)*(x-avg1);
       y_yb2 += (y-avg2)*(y-avg2);
@@ -98,7 +102,7 @@ double correlation(int pattern1, int pattern2, int len)
    if(x_xb2 * x_xb2 == 0)
       return 0;
       
-   return x_xby_yb/MathSqrt(x_xb2 * y_yb2);
+   return 100*x_xby_yb/MathSqrt(x_xb2 * y_yb2);
       
 }
 //general funcs
