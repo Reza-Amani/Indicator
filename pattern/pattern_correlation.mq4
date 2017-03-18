@@ -3,39 +3,30 @@
 #property copyright "Reza"
 #property strict
 #property indicator_separate_window
-#property indicator_buffers 4
-#property indicator_plots   3
+#property indicator_buffers 2
+#property indicator_plots   1
 #property indicator_minimum    -100
 #property indicator_maximum    100
 
 //--- indicator buffers
-double         Buffer_high[];
-double         Buffer_low[];
-double         Buffer_avg[];
+double         Buffer_sum[];
 double         Buffer_bar_no[];
 //-----------------macros
-#define compare_point 629
-#define compare_len 10
 //-----------------inputs
-//input int MACD_fast_len = 35;
+input int compare_len = 10;
+input int compare_point = 1336;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
 int OnInit()
   {
 //--- indicator buffers mapping
-   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrBlue);
-   SetIndexBuffer(0,Buffer_high);
-   SetIndexLabel(0 ,"high");   
-   SetIndexStyle(1, DRAW_LINE, STYLE_SOLID, 1, clrDarkBlue);
-   SetIndexBuffer(1,Buffer_low);
-   SetIndexLabel(1 ,"low");   
-   SetIndexStyle(2, DRAW_LINE, STYLE_SOLID, 1, clrRed);
-   SetIndexBuffer(2,Buffer_avg);
-   SetIndexLabel(2 ,"correlation");   
+   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrRed);
+   SetIndexBuffer(0,Buffer_sum);
+   SetIndexLabel(0 ,"sum");   
 
-   SetIndexBuffer(3,Buffer_bar_no);
-   SetIndexLabel(3 ,"bar no");   
+   SetIndexBuffer(1,Buffer_bar_no);
+   SetIndexLabel(1 ,"bar no");   
 //---
    return(INIT_SUCCEEDED);
   }
@@ -79,14 +70,47 @@ int OnCalculate(const int rates_total,
    //--- the main calculation loop
    for (int i=limit; i>=0; i--)
    {
-      Buffer_high[i] = correlation_high(compare_point,i,compare_len);
-      Buffer_low[i] = correlation_low(compare_point,i,compare_len);
-      Buffer_avg[i] = (Buffer_low[i]+Buffer_high[i])/2;
+      Buffer_sum[i] = correlation_low(compare_point,i,compare_len)
+                     +correlation_high(compare_point,i,compare_len)
+                     +correlation_bar_size(compare_point,i,compare_len);
       Buffer_bar_no[i]=i;
    }
 
 //--- return value of prev_calculated for next call
    return(rates_total);
+}
+
+double correlation_bar_size(int pattern1, int pattern2, int _len)
+{  //pattern1&2 are the end indexes of 2 arrays
+   //sigma(x-avgx)(y-avgy)/sqrt(sigma(x-avgx)2*sigma(y-avgy)2)
+   double x,y;
+   double avg1=0,avg2=0;
+   int i;
+   for(i=0; i<_len; i++)
+   {
+      x = High[i+pattern1]-Low[i+pattern1];
+      y = High[i+pattern2]-Low[i+pattern2];
+      avg1 += x;
+      avg2 += y;
+   }
+   avg1 /= _len;
+   avg2 /= _len;
+   
+   double x_xby_yb=0,x_xb2=0,y_yb2=0;
+   for(i=0; i<_len; i++)
+   {
+      x = High[i+pattern1]-Low[i+pattern1];
+      y = High[i+pattern2]-Low[i+pattern2];
+      x_xby_yb += (x-avg1)*(y-avg2);
+      x_xb2 += (x-avg1)*(x-avg1);
+      y_yb2 += (y-avg2)*(y-avg2);
+   }
+   
+   if(x_xb2 * x_xb2 == 0)
+      return 0;
+      
+   return 100*x_xby_yb/MathSqrt(x_xb2 * y_yb2);
+      
 }
 double correlation_high(int pattern1, int pattern2, int len)
 {  //pattern1&2 are the end indexes of 2 arrays
